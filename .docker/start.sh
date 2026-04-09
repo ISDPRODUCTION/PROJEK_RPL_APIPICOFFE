@@ -1,12 +1,8 @@
 #!/bin/sh
-echo "Starting PHP-FPM..."
 php-fpm &
 sleep 3
-echo "Clearing caches..."
 php artisan config:clear
 php artisan cache:clear
-php artisan view:clear
-echo "Running migrations..."
+php artisan session:table 2>/dev/null || true
 php artisan migrate --force
-echo "Starting Nginx..."
 nginx -g "daemon off;" 2>&1
