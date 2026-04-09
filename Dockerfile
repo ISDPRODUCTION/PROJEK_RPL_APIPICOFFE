@@ -1,6 +1,7 @@
-FROM php:8.3-apache
+FROM php:8.3-fpm
 
 RUN apt-get update && apt-get install -y \
+    nginx \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
@@ -10,11 +11,6 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Fix MPM conflict - disable semua lalu enable prefork saja
-RUN a2dismod mpm_event mpm_worker mpm_prefork 2>/dev/null || true \
-    && a2enmod mpm_prefork \
-    && a2enmod rewrite
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -26,8 +22,8 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-pl
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-COPY .docker/apache.conf /etc/apache2/sites-available/000-default.conf
-RUN a2ensite 000-default
+# Nginx config
+COPY .docker/nginx.conf /etc/nginx/sites-available/default
 
 EXPOSE 80
-CMD ["apache2-foreground"]
+CMD service nginx start && php-fpm
