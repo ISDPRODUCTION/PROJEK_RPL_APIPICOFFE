@@ -2,8 +2,10 @@
 echo "Starting PHP-FPM..."
 php-fpm &
 sleep 3
-echo "Clearing config cache..."
+echo "Clearing caches..."
 php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
 echo "Running migrations..."
 php artisan migrate --force
 echo "Starting Nginx..."
