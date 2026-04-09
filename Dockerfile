@@ -22,8 +22,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-pl
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Nginx config
 COPY .docker/nginx.conf /etc/nginx/sites-available/default
+COPY .docker/start.sh /start.sh
+RUN chmod +x /start.sh
 
 EXPOSE 80
-CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
+CMD ["/start.sh"]
