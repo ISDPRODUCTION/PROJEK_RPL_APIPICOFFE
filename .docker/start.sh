@@ -1,10 +1,16 @@
 #!/bin/sh
 
-# Start PHP-FPM in foreground mode in background
+mkdir -p /run/php
+
+# Start PHP-FPM
 php-fpm &
 
-# Wait longer for PHP-FPM to fully start
-sleep 5
+# Wait for socket to be created
+while [ ! -S /run/php/php8.3-fpm.sock ]; do
+    sleep 1
+done
 
-# Start Nginx in foreground
+echo "PHP-FPM socket ready"
+
+# Start Nginx
 exec nginx -g 'daemon off;'
