@@ -10,7 +10,7 @@ class PasswordResetController extends Controller
 {
     public function showForm()
     {
-        return view('auth.forgot password');
+        return view('auth.forgot-password');
     }
 
     public function checkEmail(Request $request)
