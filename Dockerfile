@@ -1,18 +1,51 @@
-FROM php:8.2-cli
+FROM php:8.2-apache
 
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    curl zip unzip git \
-    libpng-dev libonig-dev libxml2-dev \
-    libicu-dev libfreetype6-dev libjpeg62-turbo-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql mbstring xml intl gd
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    nodejs \
+    npm
 
+# Install PHP extensions (termasuk zip untuk phpspreadsheet)
+RUN docker-php-ext-install \
+    pdo_mysql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
+    zip
+
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-WORKDIR /app
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy project files
 COPY . .
 
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-EXPOSE 8000
-CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000
+# Install Node dependencies & build assets
+RUN npm install && npm run build
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Apache config
+RUN a2enmod rewrite
+COPY .docker/apache.conf /etc/apache2/sites-available/000-default.conf
+
+EXPOSE 80
+
+CMD ["apache2-foreground"]
