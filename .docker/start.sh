@@ -1,16 +1,13 @@
 #!/bin/sh
 
-mkdir -p /run/php
-
 # Start PHP-FPM
 php-fpm &
 
-# Wait for socket to be created
-while [ ! -S /run/php/php8.3-fpm.sock ]; do
-    sleep 1
-done
+# Wait and find the socket
+sleep 3
+echo "Looking for PHP-FPM socket..."
+find /run /var/run -name "*.sock" 2>/dev/null
+ls -la /run/php/ 2>/dev/null || echo "No /run/php directory"
 
-echo "PHP-FPM socket ready"
-
-# Start Nginx
-exec nginx -g 'daemon off;'
+# Start Nginx regardless
+exec nginx -g 'daemon off;'j
