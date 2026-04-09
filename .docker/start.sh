@@ -1,11 +1,13 @@
-#!/bin/bash
-set -e
+#!/bin/sh
 
-# Start PHP-FPM
+# Start PHP-FPM in background
 php-fpm -D
 
-# Wait for PHP-FPM to start
+# Wait for PHP-FPM
 sleep 2
 
-# Start Nginx
-nginx -g 'daemon off;'
+# Test nginx config
+nginx -t
+
+# Start Nginx in foreground
+exec nginx -g 'daemon off;'
