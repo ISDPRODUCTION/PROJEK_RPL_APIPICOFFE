@@ -10,7 +10,8 @@ class CategoryController extends Controller
 {
     public function getPaginated()
     {
-        $categories = Category::where('is_active', true)->paginate(3);
+        $perPage = request('per_page', 3);
+        $categories = Category::where('is_active', true)->paginate($perPage);
         return response()->json($categories);
     }
 

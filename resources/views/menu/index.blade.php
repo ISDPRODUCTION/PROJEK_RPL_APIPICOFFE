@@ -374,7 +374,10 @@ const categoryModule = {
         this.currentPage = data.current_page;
         this.renderCategories(data.data);
         this.renderPagination(data);
-        this.populateSelects(data.data);
+
+        const allRes = await fetch(`/categories/api?per_page=999`);
+        const allData = await allRes.json();
+        this.populateSelects(allData.data);
     },
 
     renderCategories(categories) {
