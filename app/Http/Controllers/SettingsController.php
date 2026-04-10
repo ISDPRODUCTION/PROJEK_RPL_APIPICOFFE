@@ -45,17 +45,25 @@ class SettingsController extends Controller
         ]);
 
         if ($request->hasFile('avatar')) {
-            if ($user->avatar) {
-                Storage::disk('s3')->delete($user->avatar);
+            try {
+                if ($user->avatar) {
+                    Storage::disk('s3')->delete($user->avatar);
+                }
+                $path = $request->file('avatar')->store('avatars', 's3');
+                
+                if (!$path) {
+                    return response()->json(['success' => false, 'message' => 'Upload gagal: path kosong'], 500);
+                }
+                
+                $validated['avatar'] = $path;
+            } catch (\Exception $e) {
+                return response()->json(['success' => false, 'message' => 'Storage error: ' . $e->getMessage()], 500);
             }
-            $validated['avatar'] = $request->file('avatar')->store('avatars', 's3');
         }
 
         $user->update($validated);
-
         return response()->json(['success' => true]);
     }
-
     public function updatePassword(Request $request): JsonResponse
     {
         $request->validate([
