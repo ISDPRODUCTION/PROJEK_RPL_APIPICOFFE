@@ -76,16 +76,13 @@ class SettingsController extends Controller
             'logo'          => 'nullable|image|max:2048',
         ]);
 
-        // Update app name di .env
-        $this->setEnvValue('APP_NAME', '"' . $request->business_name . '"');
+        // Skip update .env, gunakan cache saja
+        cache(['business_name' => $request->business_name], now()->addYear());
 
-        // Upload logo
         if ($request->hasFile('logo')) {
-            // Hapus logo lama
             if (Storage::disk('s3')->exists('settings/logo.png')) {
                 Storage::disk('s3')->delete('settings/logo.png');
             }
-            // Simpan logo baru
             $request->file('logo')->storeAs('settings', 'logo.png', 's3');
         }
 
