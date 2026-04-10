@@ -90,7 +90,7 @@
                     <div class="relative flex-shrink-0">
                         <div id="logo-container" class="w-16 h-16 bg-stone-700 rounded-full flex items-center justify-center overflow-hidden">
                             @if(isset($settings['logo']) && $settings['logo'])
-                                <img id="logo-preview" src="{{ Storage::url($settings['logo']) }}" alt="Logo" class="w-full h-full object-cover">
+                                <img id="logo-preview" src="{{ $settings['logo'] }}" alt="Logo" class="w-full h-full object-cover">
                             @else
                                 <span id="logo-text" class="text-white text-xs font-bold">COFFEE</span>
                                 <img id="logo-preview" src="" alt="Logo" class="w-full h-full object-cover hidden">

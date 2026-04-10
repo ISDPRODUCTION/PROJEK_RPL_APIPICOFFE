@@ -45,11 +45,11 @@ class Product extends Model
     public function getImageUrlAttribute(): string
     {
         if ($this->image) {
-            return asset('storage/' . $this->image);
+            return \Illuminate\Support\Facades\Storage::disk('s3')->url($this->image);
         }
         return asset('images/placeholder.png');
     }
-
+    
     public function scopeAvailable($query)
     {
         return $query->where('is_available', true);

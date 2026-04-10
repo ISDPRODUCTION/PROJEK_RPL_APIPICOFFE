@@ -75,10 +75,9 @@
         <div style="display:flex;align-items:center;gap:10px;">
             {{-- Logo: pakai gambar jika sudah diupload, fallback ke SVG --}}
             <div style="width:48px;height:48px;background:#FFF7ED;border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
-                @if(\Illuminate\Support\Facades\Storage::disk('public')->exists('settings/logo.png'))
-                    <img src="{{ \Illuminate\Support\Facades\Storage::url('settings/logo.png') }}"
-                        alt="Logo"
-                        style="width:100%;height:100%;object-fit:cover;">
+                @php $logoUrl = \Illuminate\Support\Facades\Storage::disk('s3')->exists('settings/logo.png') ? \Illuminate\Support\Facades\Storage::disk('s3')->url('settings/logo.png') : null; @endphp
+                @if($logoUrl)
+                    <img src="{{ $logoUrl }}" alt="Logo" style="width:100%;height:100%;object-fit:cover;">
                 @else
                     <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#F97316" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>

@@ -18,16 +18,10 @@ class SettingsController extends Controller
         $settings  = [
             'business_name' => config('app.name', 'Apipi Coffee'),
             'logo'          => Storage::disk('s3')->exists('settings/logo.png')
-                                ? 'settings/logo.png'
+                                ? Storage::disk('s3')->url('settings/logo.png')
                                 : null,
         ];
         return view('settings.index', compact('employees', 'settings'));
-    }
-
-    public function profile(): View
-    {
-        $user = Auth::user();
-        return view('settings.profile', compact('user'));
     }
 
     public function updateProfile(Request $request): JsonResponse

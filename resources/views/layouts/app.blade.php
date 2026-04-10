@@ -79,8 +79,9 @@
         {{-- Logo + close button (mobile) --}}
         <div class="flex items-center gap-3 px-5 py-5 border-b border-stone-100">
             <div class="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center bg-orange-50 flex-shrink-0">
-                @if(\Illuminate\Support\Facades\Storage::disk('public')->exists('settings/logo.png'))
-                    <img src="{{ \Illuminate\Support\Facades\Storage::url('settings/logo.png') }}" alt="Logo" class="w-full h-full object-cover">
+                @php $logoUrl = \Illuminate\Support\Facades\Storage::disk('s3')->exists('settings/logo.png') ? \Illuminate\Support\Facades\Storage::disk('s3')->url('settings/logo.png') : null; @endphp
+                @if($logoUrl)
+                    <img src="{{ $logoUrl }}" alt="Logo" class="w-full h-full object-cover">
                 @else
                     <svg class="w-5 h-5 text-[#F97316]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
