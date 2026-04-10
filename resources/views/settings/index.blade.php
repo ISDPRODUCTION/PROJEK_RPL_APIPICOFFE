@@ -470,12 +470,22 @@ document.getElementById('business-identity-form').addEventListener('submit', asy
 
 document.getElementById('add-employee-form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(this));
+    
+    const formData = new FormData(this);
+    formData.delete('_token'); // hapus CSRF dari body
+
+    const payload = Object.fromEntries(formData);
+
     const res = await fetch('{{ route("settings.employees.store") }}', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-        body: JSON.stringify(data)
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'  // ← tambah ini agar Laravel return JSON bukan HTML
+        },
+        body: JSON.stringify(payload)
     });
+
     const json = await res.json();
     if (json.success) window.location.reload();
     else alert(json.message || 'Gagal menambah karyawan');

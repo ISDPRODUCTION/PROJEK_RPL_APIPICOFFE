@@ -16,13 +16,14 @@
                 <div class="relative mb-3">
                     <img id="avatar-preview" src="{{ $user->avatar_url }}" alt="{{ $user->name }}"
                         class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg">
-                    <button type="button" onclick="document.getElementById('avatar-input').click()"
+                    <button type="button" onclick="document.getElementById('avatar-form-input').click()"
                             class="absolute bottom-1 right-1 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-md hover:bg-[#EA580C] transition-colors">
                         <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                            <circle cx="12" cy="13" r="3"/>
                         </svg>
                     </button>
-                    <input type="file" id="avatar-input" accept="image/*" class="hidden" onchange="previewAvatar(this)">
+                    <input type="file" name="avatar" id="avatar-form-input" accept="image/*" class="hidden" onchange="previewAvatar(this)">
                 </div>
                 <p class="text-lg font-bold text-[#1C1917]">{{ $user->name }}</p>
                 <span class="mt-1.5 px-3 py-1 bg-orange-100 text-primary text-xs font-bold rounded-full uppercase tracking-wider">
@@ -162,37 +163,26 @@
 
 @push('scripts')
 <script>
-// Preview avatar
+// Preview avatar - langsung dari avatar-form-input
 function previewAvatar(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
-        if (file.size > 2 * 1024 * 1024) { alert('Ukuran foto maksimal 2MB!'); input.value = ''; return; }
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        document.getElementById('avatar-form-input').files = dt.files;
+        if (file.size > 2 * 1024 * 1024) { 
+            alert('Ukuran foto maksimal 2MB!'); 
+            input.value = ''; 
+            return; 
+        }
         const reader = new FileReader();
-        reader.onload = (e) => { document.getElementById('avatar-preview').src = e.target.result; };
+        reader.onload = (e) => { 
+            document.getElementById('avatar-preview').src = e.target.result; 
+        };
         reader.readAsDataURL(file);
         document.getElementById('avatar-filename').textContent = '✓ ' + file.name;
         document.getElementById('avatar-filename').classList.remove('hidden');
     }
 }
 
-// Toggle password field visibility
-function togglePw(id) {
-    const input = document.getElementById(id);
-    input.type = input.type === 'password' ? 'text' : 'password';
-}
-
-// Toggle password form expand/collapse
-function togglePasswordForm() {
-    const container = document.getElementById('password-form-container');
-    const chevron = document.getElementById('pw-chevron');
-    container.classList.toggle('hidden');
-    chevron.style.transform = container.classList.contains('hidden') ? '' : 'rotate(180deg)';
-}
-
-// Submit profile
+// Submit profile - hapus bagian DataTransfer, langsung pakai FormData dari form
 document.getElementById('profile-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = this.querySelector('button[type="submit"]');
@@ -200,8 +190,6 @@ document.getElementById('profile-form').addEventListener('submit', async functio
     btn.disabled = true;
 
     const formData = new FormData(this);
-    const avatarFile = document.getElementById('avatar-form-input').files[0];
-    if (avatarFile) formData.set('avatar', avatarFile);
 
     const res = await fetch('{{ route("settings.profile.update") }}', {
         method: 'POST',

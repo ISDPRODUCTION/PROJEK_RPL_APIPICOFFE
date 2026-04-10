@@ -98,21 +98,34 @@ class SettingsController extends Controller
     // ── Employee CRUD ─────────────────────────────────────
     public function storeEmployee(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name'     => 'nullable|string|max:100',
-            'email'    => 'required|email|unique:users',
-            'password' => 'required|min:8',
-            'role'     => 'required|in:cashier,admin,supervisor,manager,barista',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name'     => 'nullable|string|max:100',
+                'email'    => 'required|email|unique:users',
+                'password' => 'required|min:8',
+                'role'     => 'required|in:cashier,admin,supervisor,manager,barista',
+            ]);
 
-        $validated['name']        = $validated['name'] ?? explode('@', $validated['email'])[0];
-        $validated['password']    = Hash::make($validated['password']);
-        $validated['employee_id'] = 'EMP-' . str_pad(User::count() + 1, 3, '0', STR_PAD_LEFT);
-        $validated['status']      = 'active';
+            $validated['name']        = $validated['name'] ?? explode('@', $validated['email'])[0];
+            $validated['password']    = Hash::make($validated['password']);
+            $validated['employee_id'] = 'EMP-' . str_pad(User::withTrashed()->count() + 1, 3, '0', STR_PAD_LEFT);
+            $validated['status']      = 'active';
 
-        $employee = User::create($validated);
+            $employee = User::create($validated);
 
-        return response()->json(['success' => true, 'employee' => $employee]);
+            return response()->json(['success' => true, 'employee' => $employee]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => collect($e->errors())->flatten()->first()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function updateEmployee(Request $request, int $id): JsonResponse
