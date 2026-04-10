@@ -17,7 +17,7 @@ class SettingsController extends Controller
         $employees = User::all();
         $settings  = [
             'business_name' => config('app.name', 'Apipi Coffee'),
-            'logo'          => Storage::disk('public')->exists('settings/logo.png')
+            'logo'          => Storage::disk('s3')->exists('settings/logo.png')
                                 ? 'settings/logo.png'
                                 : null,
         ];
@@ -40,7 +40,7 @@ class SettingsController extends Controller
 
         if ($request->hasFile('avatar')) {
             if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
+                Storage::disk('s3')->delete($user->avatar);
             }
             $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
@@ -82,11 +82,11 @@ class SettingsController extends Controller
         // Upload logo
         if ($request->hasFile('logo')) {
             // Hapus logo lama
-            if (Storage::disk('public')->exists('settings/logo.png')) {
-                Storage::disk('public')->delete('settings/logo.png');
+            if (Storage::disk('s3')->exists('settings/logo.png')) {
+                Storage::disk('s3')->delete('settings/logo.png');
             }
             // Simpan logo baru
-            $request->file('logo')->storeAs('settings', 'logo.png', 'public');
+            $request->file('logo')->storeAs('settings', 'logo.png', 's3');
         }
 
         return response()->json(['success' => true]);
