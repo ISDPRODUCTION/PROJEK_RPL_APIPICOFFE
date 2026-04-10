@@ -9,9 +9,12 @@ use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\PasswordResetController;
-Route::get('/test-storage', function() {
-    $url = \Illuminate\Support\Facades\Storage::disk('s3')->url('settings/logo.png');
-    return $url;
+Route::get('/test-product-image', function() {
+    $product = \App\Models\Product::first();
+    return [
+        'image_path' => $product->image,
+        'image_url' => $product->image_url,
+    ];
 });
 
 // ── Auth ───────────────────────────────────────────────────────────────────────

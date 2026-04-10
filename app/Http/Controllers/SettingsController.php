@@ -15,11 +15,16 @@ class SettingsController extends Controller
     public function index(): View
     {
         $employees = User::all();
-        $settings  = [
+        $logoUrl = null;
+        try {
+            if (Storage::disk('s3')->exists('settings/logo.png')) {
+                $logoUrl = Storage::disk('s3')->url('settings/logo.png');
+            }
+        } catch (\Exception $e) {}
+        
+        $settings = [
             'business_name' => config('app.name', 'Apipi Coffee'),
-            'logo'          => Storage::disk('s3')->exists('settings/logo.png')
-                                ? Storage::disk('s3')->url('settings/logo.png')
-                                : null,
+            'logo' => $logoUrl,
         ];
         return view('settings.index', compact('employees', 'settings'));
     }
