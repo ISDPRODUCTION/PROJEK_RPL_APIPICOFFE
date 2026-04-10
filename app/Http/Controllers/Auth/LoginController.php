@@ -44,4 +44,26 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
         return redirect()->route('login');
     }
+
+    public function login(Request $request): RedirectResponse
+    {
+        $credentials = $request->validate([
+            'email'    => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        $fieldType = filter_var($credentials['email'], FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
+
+        \Log::info('Login attempt', ['field' => $fieldType, 'value' => $credentials['email']]);
+
+        if (Auth::attempt([$fieldType => $credentials['email'], 'password' => $credentials['password']], $request->boolean('remember'))) {
+            \Log::info('Login success, regenerating session');
+            $request->session()->regenerate();
+            \Log::info('Session regenerated, redirecting');
+            return redirect()->intended(route('pos.index'));
+        }
+
+        \Log::info('Login failed');
+        return back()->withErrors(['email' => 'Invalid credentials.'])->withInput();
+    }
 }
