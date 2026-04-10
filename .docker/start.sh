@@ -2,7 +2,6 @@
 php-fpm &
 sleep 3
 
-# Buat .env dari environment variables Railway
 cat > /var/www/html/.env << EOF
 APP_NAME="${APP_NAME}"
 APP_ENV="${APP_ENV}"
@@ -29,4 +28,5 @@ chown -R www-data:www-data /var/www/html/storage
 php artisan config:clear
 php artisan cache:clear
 php artisan migrate --force
+php artisan db:seed --force
 nginx -g "daemon off;" 2>&1
