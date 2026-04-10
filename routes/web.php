@@ -9,6 +9,10 @@ use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\PasswordResetController;
+Route::get('/test-storage', function() {
+    $url = \Illuminate\Support\Facades\Storage::disk('s3')->url('settings/logo.png');
+    return $url;
+});
 
 // ── Auth ───────────────────────────────────────────────────────────────────────
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login')->middleware('guest');
