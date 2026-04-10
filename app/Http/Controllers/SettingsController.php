@@ -26,7 +26,14 @@ class SettingsController extends Controller
             'business_name' => config('app.name', 'Apipi Coffee'),
             'logo' => $logoUrl,
         ];
+
         return view('settings.index', compact('employees', 'settings'));
+    }
+    
+    public function profile(): View
+    {
+        $user = Auth::user();
+        return view('settings.profile', compact('user'));
     }
 
     public function updateProfile(Request $request): JsonResponse
