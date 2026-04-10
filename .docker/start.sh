@@ -25,3 +25,4 @@ php artisan cache:clear
 chmod -R 777 /var/www/html/storage
 php artisan migrate --force
 nginx -g "daemon off;" 2>&1
+chmod -R 777 /var/www/html/storage/framework/sessions
