@@ -23,7 +23,7 @@
                             <circle cx="12" cy="13" r="3"/>
                         </svg>
                     </button>
-                    <input type="file" name="avatar" id="avatar-form-input" accept="image/*" class="hidden" onchange="previewAvatar(this)">
+                    {{-- INPUT FILE DIHAPUS DARI SINI --}}
                 </div>
                 <p class="text-lg font-bold text-[#1C1917]">{{ $user->name }}</p>
                 <span class="mt-1.5 px-3 py-1 bg-orange-100 text-primary text-xs font-bold rounded-full uppercase tracking-wider">
@@ -37,7 +37,8 @@
         <div class="bg-white rounded-2xl shadow-sm p-6">
             <form id="profile-form" enctype="multipart/form-data" class="space-y-5">
                 @csrf
-                <input type="file" name="avatar" id="avatar-form-input" class="hidden">
+                {{-- INPUT FILE DIPINDAHKAN KE DALAM FORM --}}
+                <input type="file" name="avatar" id="avatar-form-input" accept="image/*" class="hidden" onchange="previewAvatar(this)">
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -182,7 +183,21 @@ function previewAvatar(input) {
     }
 }
 
-// Submit profile - hapus bagian DataTransfer, langsung pakai FormData dari form
+// Toggle password field visibility
+function togglePw(id) {
+    const input = document.getElementById(id);
+    input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+// Toggle password form expand/collapse
+function togglePasswordForm() {
+    const container = document.getElementById('password-form-container');
+    const chevron = document.getElementById('pw-chevron');
+    container.classList.toggle('hidden');
+    chevron.style.transform = container.classList.contains('hidden') ? '' : 'rotate(180deg)';
+}
+
+// Submit profile
 document.getElementById('profile-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = this.querySelector('button[type="submit"]');
