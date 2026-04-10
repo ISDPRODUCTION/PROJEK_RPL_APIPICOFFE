@@ -29,7 +29,7 @@ class SettingsController extends Controller
 
         return view('settings.index', compact('employees', 'settings'));
     }
-    
+
     public function profile(): View
     {
         $user = Auth::user();
@@ -48,7 +48,7 @@ class SettingsController extends Controller
             if ($user->avatar) {
                 Storage::disk('s3')->delete($user->avatar);
             }
-            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = $request->file('avatar')->store('avatars', 's3');
         }
 
         $user->update($validated);
