@@ -253,9 +253,7 @@ const cartModule = (() => {
             searchInput.addEventListener('input', (e) => {
                 clearTimeout(searchTimer);
                 searchTimer = setTimeout(() => {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('search', e.target.value);
-                    window.location.href = url.toString();
+                    posModule.loadProducts({ search: e.target.value });
                 }, 400);
             });
         }

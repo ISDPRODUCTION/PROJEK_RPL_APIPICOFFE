@@ -10,13 +10,15 @@
         {{-- Category Tabs --}}
         <div class="flex gap-4 md:gap-6 border-b border-stone-200 mb-6 overflow-x-auto scrollbar-hide">
             @foreach(['food' => 'FOOD', 'drinks' => 'DRINKS', 'snacks' => 'SNACKS', 'dessert' => 'DESSERT'] as $key => $label)
-            <a href="{{ route('pos.index', ['category' => $key]) }}"
-                class="pb-3 text-sm font-semibold tracking-wider transition-colors relative whitespace-nowrap flex-shrink-0
-                        {{ $category === $key
-                            ? 'text-[#1C1917] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary'
-                            : 'text-[#78716C] hover:text-[#1C1917]' }}">
+            <<button type="button"
+                data-category="{{ $key }}"
+                onclick="posModule.switchCategory('{{ $key }}')"
+                class="category-tab pb-3 text-sm font-semibold tracking-wider transition-colors relative whitespace-nowrap flex-shrink-0
+                    {{ $category === $key
+                        ? 'text-[#1C1917] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary'
+                        : 'text-[#78716C] hover:text-[#1C1917]' }}">
                 {{ $label }}
-            </a>
+            </button>
             @endforeach
         </div>
 
@@ -78,8 +80,8 @@
 {{-- Desktop: floating draggable | Mobile: bottom sheet --}}
 <div id="order-panel"
     class="hidden fixed bg-white shadow-xl z-30 overflow-hidden select-none
-           md:rounded-2xl md:w-80 md:bottom-6 md:right-6
-           bottom-0 left-0 right-0 rounded-t-3xl">
+            md:rounded-2xl md:w-80 md:bottom-6 md:right-6
+            bottom-0 left-0 right-0 rounded-t-3xl">
 
     {{-- Drag handle (mobile) --}}
     <div class="flex justify-center pt-3 md:hidden">
@@ -88,7 +90,7 @@
 
     {{-- Header --}}
     <div id="order-panel-handle"
-         class="flex items-center justify-between px-4 pt-3 pb-2 cursor-grab active:cursor-grabbing">
+        class="flex items-center justify-between px-4 pt-3 pb-2 cursor-grab active:cursor-grabbing">
         <div class="flex items-center gap-2">
             <h3 class="font-bold text-[#1C1917] text-base">Your Order</h3>
             <span id="panel-item-count" class="text-xs font-bold bg-primary text-white px-2 py-0.5 rounded-full">0 ITEMS</span>
@@ -131,7 +133,7 @@
 
 {{-- Overlay for mobile panel --}}
 <div id="panel-overlay" class="hidden fixed inset-0 bg-black/30 z-20 md:hidden"
-     onclick="document.getElementById('order-panel').classList.add('hidden'); document.getElementById('panel-overlay').classList.add('hidden'); if(parseInt(document.getElementById('panel-item-count').textContent)>0){document.getElementById('mobile-cart-fab').classList.remove('hidden');document.getElementById('mobile-cart-fab').classList.add('flex');}"></div>
+    onclick="document.getElementById('order-panel').classList.add('hidden'); document.getElementById('panel-overlay').classList.add('hidden'); if(parseInt(document.getElementById('panel-item-count').textContent)>0){document.getElementById('mobile-cart-fab').classList.remove('hidden');document.getElementById('mobile-cart-fab').classList.add('flex');}"></div>
 
 {{-- Checkout Modal --}}
 @include('pos.partials.checkout-modal')
@@ -139,6 +141,8 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/modules/posModule.js') }}"></script>
+<script src="{{ asset('js/modules/checkoutModule.js') }}"></script>
 <script src="{{ asset('js/modules/checkoutModule.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
