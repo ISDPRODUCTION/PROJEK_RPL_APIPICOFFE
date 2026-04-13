@@ -3,29 +3,30 @@
 @section('title', 'Menu Management')
 
 @section('content')
-<div class="p-6">
-    <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-            <h1 class="text-2xl font-bold text-[#1C1917]">Menu Management</h1>
-            <span class="text-base text-[#78716C]">({{ $products->total() }} Items)</span>
+<div class="p-4 md:p-6">
+    <div class="flex items-center justify-between mb-6 gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+            <h1 class="text-xl md:text-2xl font-bold text-[#1C1917] truncate">Menu Management</h1>
+            <span class="text-sm text-[#78716C] whitespace-nowrap">({{ $products->total() }} Items)</span>
         </div>
-        <div class="flex gap-2">
+        <div class="flex gap-2 flex-shrink-0">
             <button onclick="categoryModule.openAddModal()"
-                    class="flex items-center gap-2 px-4 py-2.5 bg-stone-800 hover:bg-stone-900 text-white rounded-2xl text-sm font-semibold transition-colors">
+                    class="hidden sm:flex items-center gap-2 px-3 md:px-4 py-2.5 bg-stone-800 hover:bg-stone-900 text-white rounded-2xl text-sm font-semibold transition-colors">
                 Tambah Kategori
             </button>
             <button onclick="menuModule.openAddModal()"
-                    class="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors shadow-lg shadow-orange-200">
+                    class="flex items-center gap-2 px-3 md:px-4 py-2.5 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors shadow-lg shadow-orange-200">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v8M8 12h8"/>
                 </svg>
-                Tambah Menu
+                <span class="hidden sm:inline">Tambah Menu</span>
+                <span class="sm:hidden">Tambah</span>
             </button>
         </div>
     </div>
 
-    <div class="flex items-center gap-4 mb-6">
-        <div class="flex-1 max-w-sm relative">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-6">
+        <div class="w-full sm:w-auto sm:flex-1 sm:max-w-sm relative">
             <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#78716C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
             </svg>
@@ -33,79 +34,133 @@
                     class="w-full pl-9 pr-4 py-2.5 text-sm bg-white rounded-2xl border border-stone-200 focus:ring-2 focus:ring-primary/30 outline-none">
         </div>
 
-        <div class="flex items-center gap-2 ml-auto">
-            <div id="category-container" class="flex gap-2">
+        <div class="flex items-center gap-2 w-full sm:w-auto sm:ml-auto overflow-x-auto">
+            <div id="category-container" class="flex gap-2 flex-nowrap">
             </div>
-            <div class="w-px h-6 bg-stone-300 mx-2"></div>
-            <div id="category-pagination" class="flex gap-1">
+            <div class="w-px h-6 bg-stone-300 mx-1 flex-shrink-0"></div>
+            <div id="category-pagination" class="flex gap-1 flex-shrink-0">
             </div>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <table class="w-full">
-            <thead>
-                <tr class="border-b border-stone-100">
-                    <th class="text-left py-4 px-6 text-xs font-bold text-[#78716C] uppercase tracking-wider w-16">Image</th>
-                    <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Product Name</th>
-                    <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Category</th>
-                    <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Price</th>
-                    <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Stock</th>
-                    <th class="text-right py-4 px-6 text-xs font-bold text-[#78716C] uppercase tracking-wider">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-stone-100">
-                @forelse($products as $product)
-                <tr class="hover:bg-stone-50 transition-colors">
-                    <td class="py-4 px-6">
-                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
-                            class="w-12 h-12 rounded-xl object-cover bg-stone-100">
-                    </td>
-                    <td class="py-4 px-4">
-                        <p class="text-sm font-semibold text-[#1C1917]">{{ $product->name }}</p>
-                        <p class="text-xs text-[#78716C]">ID: {{ $product->sku }}</p>
-                    </td>
-                    <td class="py-4 px-4">
-                        <span class="px-2.5 py-1 bg-stone-100 text-[#78716C] text-xs font-medium rounded-lg capitalize">
-                            {{ $product->category->name ?? '-' }}
-                        </span>
-                    </td>
-                    <td class="py-4 px-4">
-                        <span class="text-sm font-semibold text-[#1C1917]">{{ $product->formatted_price }}</span>
-                    </td>
-                    <td class="py-4 px-4">
-                        <span class="flex items-center gap-1.5 text-sm font-medium
-                                    {{ $product->stock > 10 ? 'text-green-600' : ($product->stock > 0 ? 'text-orange-500' : 'text-red-500') }}">
-                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                            {{ $product->stock }} pcs
-                        </span>
-                    </td>
-                    <td class="py-4 px-6">
-                        <div class="flex items-center justify-end gap-2">
-                            <button onclick="menuModule.openEditModal({{ $product->id }}, '{{ addslashes($product->name) }}', '{{ $product->category->slug ?? '' }}', {{ $product->price }}, {{ $product->stock }}, '{{ $product->image_url }}')"
-                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-blue-200 text-blue-500 hover:bg-blue-50 transition-colors">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                            </button>
-                            <button onclick="menuModule.openDeleteModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
-                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="py-16 text-center text-[#78716C]">No products found.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    {{-- Mobile: tambah kategori button --}}
+    <div class="sm:hidden mb-4">
+        <button onclick="categoryModule.openAddModal()"
+                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-stone-800 hover:bg-stone-900 text-white rounded-2xl text-sm font-semibold transition-colors">
+            Tambah Kategori
+        </button>
+    </div>
 
-        <div class="px-6 py-4 border-t border-stone-100 flex items-center justify-between">
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        {{-- Mobile card view --}}
+        <div class="block md:hidden divide-y divide-stone-100">
+            @forelse($products as $product)
+            <div class="p-4 hover:bg-stone-50 transition-colors">
+                <div class="flex items-center gap-3">
+                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
+                        class="w-14 h-14 rounded-xl object-cover bg-stone-100 flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-[#1C1917] truncate">{{ $product->name }}</p>
+                        <p class="text-xs text-[#78716C]">ID: {{ $product->sku }}</p>
+                        <div class="flex items-center gap-2 mt-1 flex-wrap">
+                            <span class="px-2 py-0.5 bg-stone-100 text-[#78716C] text-xs font-medium rounded-lg capitalize">
+                                {{ $product->category->name ?? '-' }}
+                            </span>
+                            <span class="text-xs font-bold text-primary">{{ $product->formatted_price }}</span>
+                            <span class="flex items-center gap-1 text-xs font-medium
+                                        {{ $product->stock > 10 ? 'text-green-600' : ($product->stock > 0 ? 'text-orange-500' : 'text-red-500') }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                                {{ $product->stock }} pcs
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1.5 flex-shrink-0">
+                        <button onclick="menuModule.openEditModal({{ $product->id }}, '{{ addslashes($product->name) }}', '{{ $product->category->slug ?? '' }}', {{ $product->price }}, {{ $product->stock }}, '{{ $product->image_url }}')"
+                                class="w-8 h-8 flex items-center justify-center rounded-lg border border-blue-200 text-blue-500 hover:bg-blue-50 transition-colors">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </button>
+                        <button onclick="menuModule.openDeleteModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                class="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            @empty
+            <div class="py-16 text-center text-[#78716C]">No products found.</div>
+            @endforelse
+        </div>
+
+        {{-- Desktop table view --}}
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full min-w-[640px]">
+                <thead>
+                    <tr class="border-b border-stone-100">
+                        <th class="text-left py-4 px-6 text-xs font-bold text-[#78716C] uppercase tracking-wider w-16">Image</th>
+                        <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Product Name</th>
+                        <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Category</th>
+                        <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Price</th>
+                        <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Stock</th>
+                        <th class="text-right py-4 px-6 text-xs font-bold text-[#78716C] uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-100">
+                    @forelse($products as $product)
+                    <tr class="hover:bg-stone-50 transition-colors">
+                        <td class="py-4 px-6">
+                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
+                                class="w-12 h-12 rounded-xl object-cover bg-stone-100">
+                        </td>
+                        <td class="py-4 px-4">
+                            <p class="text-sm font-semibold text-[#1C1917]">{{ $product->name }}</p>
+                            <p class="text-xs text-[#78716C]">ID: {{ $product->sku }}</p>
+                        </td>
+                        <td class="py-4 px-4">
+                            <span class="px-2.5 py-1 bg-stone-100 text-[#78716C] text-xs font-medium rounded-lg capitalize">
+                                {{ $product->category->name ?? '-' }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-4">
+                            <span class="text-sm font-semibold text-[#1C1917]">{{ $product->formatted_price }}</span>
+                        </td>
+                        <td class="py-4 px-4">
+                            <span class="flex items-center gap-1.5 text-sm font-medium
+                                        {{ $product->stock > 10 ? 'text-green-600' : ($product->stock > 0 ? 'text-orange-500' : 'text-red-500') }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                                {{ $product->stock }} pcs
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex items-center justify-end gap-2">
+                                <button onclick="menuModule.openEditModal({{ $product->id }}, '{{ addslashes($product->name) }}', '{{ $product->category->slug ?? '' }}', {{ $product->price }}, {{ $product->stock }}, '{{ $product->image_url }}')"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-blue-200 text-blue-500 hover:bg-blue-50 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
+                                <button onclick="menuModule.openDeleteModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="py-16 text-center text-[#78716C]">No products found.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="px-4 md:px-6 py-4 border-t border-stone-100 flex items-center justify-between gap-3 flex-wrap">
             <p class="text-sm text-[#78716C]">Showing {{ $products->firstItem() }} – {{ $products->lastItem() }} of {{ $products->total() }} items</p>
             <div class="flex items-center gap-1">
                 @if($products->onFirstPage())
@@ -136,6 +191,7 @@
     </div>
 </div>
 
+{{-- Modals (tidak diubah) --}}
 <div id="add-category-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="categoryModule.closeAddModal()"></div>
     <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md z-10">
@@ -183,7 +239,6 @@
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-
             <form id="add-menu-form" class="mt-5 space-y-4">
                 @csrf
                 <div>
@@ -191,7 +246,6 @@
                     <input type="text" name="name" placeholder="Isi nama menu"
                             class="w-full px-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none">
                 </div>
-
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Category</label>
@@ -207,7 +261,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Initial Stock</label>
                     <div class="flex items-center gap-2">
@@ -219,7 +272,6 @@
                                 class="w-10 h-10 flex items-center justify-center rounded-xl border border-stone-200 text-[#78716C] hover:border-stone-300 text-lg font-light">+</button>
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Product Image</label>
                     <label class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-stone-200 rounded-2xl cursor-pointer hover:border-primary/50 hover:bg-orange-50/30 transition-all bg-stone-50/50">
@@ -235,7 +287,6 @@
                         <input type="file" name="image" accept="image/*" class="hidden" onchange="menuModule.previewImage(this)">
                     </label>
                 </div>
-
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="menuModule.closeAddModal()"
                             class="flex-1 py-3 text-sm font-semibold text-[#78716C] hover:text-[#1C1917] transition-colors">
@@ -264,12 +315,10 @@
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-
             <form id="edit-menu-form" class="mt-5">
                 @csrf
                 @method('POST')
                 <input type="hidden" name="_productId" id="edit-product-id">
-
                 <div class="flex gap-4 mb-4">
                     <div class="flex flex-col items-center gap-2">
                         <img id="edit-product-image" src="" alt="Product" class="w-28 h-28 rounded-xl object-cover bg-stone-100">
@@ -297,7 +346,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-2 gap-4 mb-5">
                     <div>
                         <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Price</label>
@@ -319,7 +367,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="flex gap-3">
                     <button type="button" onclick="menuModule.closeEditModal()"
                             class="flex-1 py-3 text-sm font-semibold text-[#78716C] hover:text-[#1C1917] transition-colors">
@@ -382,14 +429,11 @@ const categoryModule = {
 
     renderCategories(categories) {
         const container = document.getElementById('category-container');
-        let html = `<a href="/menu?category=all&search=${this.search}" class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${this.currentCategory == 'all' ? 'text-primary border-b-2 border-primary' : 'text-[#78716C] hover:text-[#1C1917]'}">All</a>`;
-
+        let html = `<a href="/menu?category=all&search=${this.search}" class="px-3 py-1.5 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap ${this.currentCategory == 'all' ? 'text-primary border-b-2 border-primary' : 'text-[#78716C] hover:text-[#1C1917]'}">All</a>`;
         categories.forEach(cat => {
             const isActive = this.currentCategory == cat.slug;
-            const activeClass = isActive ? 'text-primary border-b-2 border-primary' : 'text-[#78716C] hover:text-[#1C1917]';
-            html += `<a href="/menu?category=${cat.slug}&search=${this.search}" class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${activeClass}">${cat.name}</a>`;
+            html += `<a href="/menu?category=${cat.slug}&search=${this.search}" class="px-3 py-1.5 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap ${isActive ? 'text-primary border-b-2 border-primary' : 'text-[#78716C] hover:text-[#1C1917]'}">${cat.name}</a>`;
         });
-
         container.innerHTML = html;
     },
 
@@ -408,18 +452,14 @@ const categoryModule = {
     populateSelects(categories) {
         const addSelect = document.querySelector('select[name="category"]');
         const editSelect = document.getElementById('edit-category');
-
         let options = '<option value="">Select category</option>';
         categories.forEach(cat => {
             options += `<option value="${cat.slug}">${cat.name}</option>`;
         });
-
         const currentAddVal = addSelect.value;
         const currentEditVal = editSelect.value;
-
         addSelect.innerHTML = options;
         editSelect.innerHTML = options;
-
         if (currentAddVal) addSelect.value = currentAddVal;
         if (currentEditVal) editSelect.value = currentEditVal;
     },
@@ -433,7 +473,7 @@ const categoryModule = {
 
 const menuModule = {
     openAddModal() { document.getElementById('add-menu-modal').classList.remove('hidden'); },
-    closeAddModal() { 
+    closeAddModal() {
         document.getElementById('add-menu-modal').classList.add('hidden');
         document.getElementById('add-menu-form').reset();
     },
@@ -450,9 +490,7 @@ const menuModule = {
     previewEditImage(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('edit-product-image').src = e.target.result;
-            };
+            reader.onload = (e) => { document.getElementById('edit-product-image').src = e.target.result; };
             reader.readAsDataURL(input.files[0]);
         }
     },
@@ -462,8 +500,7 @@ const menuModule = {
     },
     openDeleteModal(id, name) {
         document.getElementById('delete-product-id').value = id;
-        document.getElementById('delete-confirm-text').innerHTML =
-            `Apakah Anda yakin ingin menghapus menu <strong>'${name}'</strong>?`;
+        document.getElementById('delete-confirm-text').innerHTML = `Apakah Anda yakin ingin menghapus menu <strong>'${name}'</strong>?`;
         document.getElementById('delete-modal').classList.remove('hidden');
     },
     closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); },
@@ -472,63 +509,39 @@ const menuModule = {
         const token = document.querySelector('meta[name="csrf-token"]').content;
         const res = await fetch(`/menu/${id}`, {
             method: 'DELETE',
-            headers: { 
-                'X-CSRF-TOKEN': token,
-                'Accept': 'application/json'
-            }
+            headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' }
         });
         const data = await res.json();
         if (data.success) window.location.reload();
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    categoryModule.loadCategories();
-});
+document.addEventListener('DOMContentLoaded', () => { categoryModule.loadCategories(); });
 
 document.getElementById('add-category-form')?.addEventListener('submit', async function(e) {
     e.preventDefault();
     const token = document.querySelector('meta[name="csrf-token"]').content;
-    const formData = new FormData(this);
-
     const res = await fetch('/categories', {
         method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': token,
-            'Accept': 'application/json'
-        },
-        body: formData
+        headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+        body: new FormData(this)
     });
-
     const data = await res.json();
-    if (data.success) {
-        categoryModule.closeAddModal();
-        categoryModule.loadCategories(categoryModule.currentPage);
-    } else {
-        alert('Error: ' + (data.message || 'Gagal menambah kategori'));
-    }
+    if (data.success) { categoryModule.closeAddModal(); categoryModule.loadCategories(categoryModule.currentPage); }
+    else alert('Error: ' + (data.message || 'Gagal menambah kategori'));
 });
 
 document.getElementById('add-menu-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const token = document.querySelector('meta[name="csrf-token"]').content;
-    const formData = new FormData(this);
-    
-    const res = await fetch('{{ route("menu.store") }}', { 
-        method: 'POST', 
-        headers: { 
-            'X-CSRF-TOKEN': token,
-            'Accept': 'application/json'
-        },
-        body: formData 
+    const res = await fetch('{{ route("menu.store") }}', {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+        body: new FormData(this)
     });
-    
     const data = await res.json();
-    if (data.success) {
-        window.location.reload();
-    } else {
-        alert('Error: ' + (data.message || 'Gagal menambah menu'));
-    }
+    if (data.success) window.location.reload();
+    else alert('Error: ' + (data.message || 'Gagal menambah menu'));
 });
 
 document.getElementById('edit-menu-form').addEventListener('submit', async function(e) {
@@ -537,22 +550,14 @@ document.getElementById('edit-menu-form').addEventListener('submit', async funct
     const token = document.querySelector('meta[name="csrf-token"]').content;
     const formData = new FormData(this);
     formData.append('_method', 'POST');
-    
-    const res = await fetch(`/menu/${id}`, { 
-        method: 'POST', 
-        headers: { 
-            'X-CSRF-TOKEN': token,
-            'Accept': 'application/json'
-        },
-        body: formData 
+    const res = await fetch(`/menu/${id}`, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+        body: formData
     });
-    
     const data = await res.json();
-    if (data.success) {
-        window.location.reload();
-    } else {
-        alert('Error: ' + (data.message || 'Gagal update menu'));
-    }
+    if (data.success) window.location.reload();
+    else alert('Error: ' + (data.message || 'Gagal update menu'));
 });
 </script>
 @endpush
