@@ -143,7 +143,6 @@
 @push('scripts')
 <script src="{{ asset('js/modules/posModule.js') }}"></script>
 <script src="{{ asset('js/modules/checkoutModule.js') }}"></script>
-<script src="{{ asset('js/modules/checkoutModule.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const panel = document.getElementById('order-panel');
