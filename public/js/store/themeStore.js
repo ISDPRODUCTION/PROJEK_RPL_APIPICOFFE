@@ -10,10 +10,10 @@
         '#3B82F6': { p: '#3B82F6', hover: '#2563EB', light: '#EFF6FF', light2: '#DBEAFE', text: '#3B82F6', shadow: 'rgba(59,130,246,0.25)' },
         '#10B981': { p: '#10B981', hover: '#059669', light: '#ECFDF5', light2: '#D1FAE5', text: '#10B981', shadow: 'rgba(16,185,129,0.25)' },
         '#8B5CF6': { p: '#8B5CF6', hover: '#7C3AED', light: '#F5F3FF', light2: '#EDE9FE', text: '#8B5CF6', shadow: 'rgba(139,92,246,0.25)' },
-        '#EF4444': { p: '#EF4444', hover: '#DC2626', light: '#FEF2F2', light2: '#FEE2E2', text: '#EF4444', shadow: 'rgba(239,68,68,0.25)'  },
+        '#EF4444': { p: '#EF4444', hover: '#DC2626', light: '#FEF2F2', light2: '#FEE2E2', text: '#EF4444', shadow: 'rgba(239,68,68,0.25)' },
     };
 
-    const DARK_MODE  = { bg: '#111827', surface: '#1F2937', border: '#374151', text: '#F9FAFB', muted: '#9CA3AF', input: '#374151' };
+    const DARK_MODE = { bg: '#111827', surface: '#1F2937', border: '#374151', text: '#F9FAFB', muted: '#9CA3AF', input: '#374151' };
     const LIGHT_MODE = { bg: '#F5F5F4', surface: '#FFFFFF', border: '#E7E5E4', text: '#1C1917', muted: '#78716C', input: '#F5F5F4' };
 
     function applyTheme(color, darkMode) {
@@ -97,6 +97,12 @@
             #shift-status-card p.text-\\[\\#EF4444\\] {
                 color: var(--color-primary) !important;
             }
+            #shift-status-card p.text-\\[\\#1C1917\\] {
+                color: var(--color-text) !important;
+            }
+            #shift-status-card span.text-\\[\\#78716C\\] {
+                color: var(--color-muted) !important;
+            }
 
             /* ── Sidebar brand name color ─────────── */
             aside#sidebar span.text-\\[\\#F97316\\],
@@ -131,8 +137,21 @@
                 border-color: var(--color-border) !important;
             }
 
+            /* ── Category badges ──────────────────── */
+            .bg-stone-100 {
+                background-color: var(--color-input) !important;
+            }
+
             /* ── Table hover ──────────────────────── */
             tbody tr:hover { background-color: var(--color-bg) !important; }
+
+            /* ── Modal surfaces ───────────────────── */
+            #add-category-modal .bg-white,
+            #add-menu-modal .bg-white,
+            #edit-menu-modal .bg-white,
+            #delete-modal .bg-white {
+                background-color: var(--color-surface) !important;
+            }
 
             /* ── Shadow accent ────────────────────── */
             .shadow-orange-200 { box-shadow: 0 4px 14px var(--color-shadow) !important; }

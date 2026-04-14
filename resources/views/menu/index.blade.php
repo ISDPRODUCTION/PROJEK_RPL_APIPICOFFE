@@ -516,7 +516,43 @@ const menuModule = {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => { categoryModule.loadCategories(); });
+document.addEventListener('DOMContentLoaded', () => {
+    categoryModule.loadCategories();
+
+    // Wire up search input with debounce
+    const searchInput = document.getElementById('menu-search');
+    if (searchInput) {
+        let debounceTimer;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const searchValue = this.value.trim();
+                const currentCategory = categoryModule.currentCategory || 'all';
+                const params = new URLSearchParams();
+                params.set('category', currentCategory);
+                if (searchValue) {
+                    params.set('search', searchValue);
+                }
+                window.location.href = '/menu?' + params.toString();
+            }, 400);
+        });
+
+        // Also allow Enter key to search immediately
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                clearTimeout(debounceTimer);
+                const searchValue = this.value.trim();
+                const currentCategory = categoryModule.currentCategory || 'all';
+                const params = new URLSearchParams();
+                params.set('category', currentCategory);
+                if (searchValue) {
+                    params.set('search', searchValue);
+                }
+                window.location.href = '/menu?' + params.toString();
+            }
+        });
+    }
+});
 
 document.getElementById('add-category-form')?.addEventListener('submit', async function(e) {
     e.preventDefault();
