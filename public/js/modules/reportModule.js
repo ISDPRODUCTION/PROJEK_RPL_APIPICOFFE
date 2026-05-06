@@ -1,67 +1,129 @@
 /**
  * reportModule.js
- * Manages Sales Report page: Chart.js initialisation, filter switching, export.
+ * Manages Sales Report page: Chart.js bar chart, filter switching, export.
+ * Sesuai desain referensi: bar oranye untuk nilai tertinggi, abu-abu untuk lainnya,
+ * tooltip dark dengan info Total Transaksi + Penghasilan.
  */
 
 const reportModule = (() => {
 
     let chartInstance = null;
     let currentType   = 'daily';
+    let rawData       = [];
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function formatRupiah(val) {
+        return 'Rp ' + new Intl.NumberFormat('id-ID').format(val);
+    }
+
+    function getBarColors(data) {
+        if (!data.length) return [];
+        const revenues = data.map(d => d.revenue);
+        const max      = Math.max(...revenues);
+        return revenues.map(v => v === max && max > 0 ? '#F97316' : '#E2E8F0');
+    }
+
+    function formatLabel(d) {
+        if (d.date) {
+            const dt = new Date(d.date + 'T00:00:00');
+            return dt.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }).toUpperCase();
+        }
+        if (d.month) return d.month;
+        if (d.year)  return String(d.year);
+        return '';
+    }
 
     // ── Chart initialisation ──────────────────────────────────────────────────
     function initChart() {
         const canvas = document.getElementById('revenue-chart');
-        if (!canvas || typeof Chart === 'undefined') return;
+        if (!canvas) return;
 
-        const rawData = window.reportChartData || [];
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js belum dimuat');
+            return;
+        }
 
-        const labels  = rawData.map(d => {
-            const date = new Date(d.date);
-            return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }).toUpperCase();
-        });
-        const revenue = rawData.map(d => d.revenue);
+        rawData = window.reportChartData || [];
+
+        if (chartInstance) {
+            chartInstance.destroy();
+            chartInstance = null;
+        }
+
+        // Jika tidak ada data, tampilkan empty state
+        if (rawData.length === 0) {
+            renderEmptyChart(canvas);
+            return;
+        }
+
+        const labels = rawData.map(d => formatLabel(d));
+        const revenues = rawData.map(d => d.revenue);
 
         chartInstance = new Chart(canvas, {
             type: 'bar',
             data: {
                 labels,
                 datasets: [{
-                    label:           'Revenue',
-                    data:            revenue,
-                    backgroundColor: rawData.map((_, i) =>
-                        i === revenue.indexOf(Math.max(...revenue))
-                            ? '#F97316'
-                            : '#E2E8F0'
-                    ),
-                    borderRadius:    8,
+                    label:           'Pendapatan',
+                    data:            revenues,
+                    backgroundColor: getBarColors(rawData),
+                    hoverBackgroundColor: rawData.map((_, i) => {
+                        const revenues2 = rawData.map(d => d.revenue);
+                        const max = Math.max(...revenues2);
+                        return rawData[i].revenue === max && max > 0 ? '#EA580C' : '#CBD5E1';
+                    }),
+                    borderRadius:    { topLeft: 8, topRight: 8 },
                     borderSkipped:   false,
-                    barPercentage:   0.6,
+                    barPercentage:   0.55,
+                    categoryPercentage: 0.8,
                 }],
             },
             options: {
                 responsive:          true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 600,
+                    easing: 'easeInOutQuart',
+                },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
+                        enabled: true,
                         backgroundColor: '#1C1917',
-                        titleColor:      '#F5F5F4',
-                        bodyColor:       '#F97316',
-                        padding:         12,
+                        titleColor:      '#D6D3D1',
+                        bodyColor:       '#FFFFFF',
+                        padding:         { top: 10, bottom: 10, left: 14, right: 14 },
                         cornerRadius:    12,
+                        displayColors:   false,
+                        titleFont:       { size: 11, weight: '600' },
+                        bodyFont:        { size: 12 },
                         callbacks: {
-                            title: (items) => {
+                            title(items) {
                                 const idx = items[0].dataIndex;
                                 const d   = rawData[idx];
-                                return d.date;
+                                if (d.date) {
+                                    const dt = new Date(d.date + 'T00:00:00');
+                                    return dt.toLocaleDateString('id-ID', {
+                                        day: 'numeric', month: 'long', year: 'numeric'
+                                    }).toUpperCase();
+                                }
+                                return d.month || d.year || '';
                             },
-                            label: (item) => {
+                            label(item) {
                                 const idx = item.dataIndex;
                                 const d   = rawData[idx];
                                 return [
-                                    `Total Transaksi   ${d.transaction_count}`,
-                                    `Penghasilan   Rp ${new Intl.NumberFormat('id-ID').format(d.revenue)}`,
+                                    `Total Transaksi   ${d.transaction_count ?? 0}`,
+                                    `Penghasilan  ${formatRupiah(d.revenue)}`,
                                 ];
+                            },
+                            labelColor(item) {
+                                const idx = item.dataIndex;
+                                const d   = rawData[idx];
+                                const c   = rawData.map(x => x.revenue);
+                                const max = Math.max(...c);
+                                const col = d.revenue === max && max > 0 ? '#F97316' : '#94A3B8';
+                                return { borderColor: col, backgroundColor: col, borderRadius: 3 };
                             },
                         },
                     },
@@ -69,72 +131,123 @@ const reportModule = (() => {
                 scales: {
                     x: {
                         grid:   { display: false },
-                        ticks:  { color: '#78716C', font: { size: 11 } },
+                        ticks:  { color: '#A8A29E', font: { size: 11, weight: '500' } },
                         border: { display: false },
                     },
                     y: {
-                        grid:    { color: '#F5F5F4' },
-                        ticks:   { color: '#78716C', font: { size: 11 } },
-                        border:  { display: false },
                         display: false,
+                        grid:    { display: false },
+                        border:  { display: false },
                     },
                 },
             },
         });
     }
 
+    function renderEmptyChart(canvas) {
+        // Buat placeholder dengan data dummy 0 agar sumbu X tetap terlihat
+        const today = new Date();
+        const emptyLabels = [];
+        const emptyData   = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(today.getDate() - i);
+            emptyLabels.push(d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }).toUpperCase());
+            emptyData.push(0);
+        }
+
+        chartInstance = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels: emptyLabels,
+                datasets: [{
+                    data:            emptyData,
+                    backgroundColor: '#F1F5F9',
+                    borderRadius:    { topLeft: 8, topRight: 8 },
+                    borderSkipped:   false,
+                    barPercentage:   0.55,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend:  { display: false },
+                    tooltip: { enabled: false },
+                },
+                scales: {
+                    x: {
+                        grid:   { display: false },
+                        ticks:  { color: '#A8A29E', font: { size: 11 } },
+                        border: { display: false },
+                    },
+                    y: { display: false },
+                },
+            },
+        });
+    }
+
     function updateChart(data) {
-        if (!chartInstance) return;
+        rawData = data;
 
-        const labels  = data.map(d => d.date ?? d.month ?? d.year);
-        const revenue = data.map(d => d.revenue);
+        if (!chartInstance) {
+            initChart();
+            return;
+        }
 
-        chartInstance.data.labels              = labels;
-        chartInstance.data.datasets[0].data    = revenue;
-        chartInstance.data.datasets[0].backgroundColor = revenue.map((_, i) =>
-            i === revenue.indexOf(Math.max(...revenue)) ? '#F97316' : '#E2E8F0'
-        );
+        if (!rawData.length) {
+            chartInstance.destroy();
+            chartInstance = null;
+            renderEmptyChart(document.getElementById('revenue-chart'));
+            return;
+        }
+
+        const labels   = rawData.map(d => formatLabel(d));
+        const revenues = rawData.map(d => d.revenue);
+
+        chartInstance.data.labels                        = labels;
+        chartInstance.data.datasets[0].data             = revenues;
+        chartInstance.data.datasets[0].backgroundColor  = getBarColors(rawData);
+        chartInstance.options.animation.duration        = 400;
         chartInstance.update();
     }
 
-    // ── Filter switch ─────────────────────────────────────────────────────────
+    // ── Filter switch Daily / Weekly ──────────────────────────────────────────
     async function handleFilterChange(type) {
         currentType = type;
 
         // Toggle button styles
-        ['daily', 'weekly'].forEach(t => {
-            const btn = document.getElementById(`btn-${t}`);
-            if (!btn) return;
-            if (t === type) {
-                btn.className = btn.className.replace('bg-stone-100 text-[#78716C]', 'bg-[#1C1917] text-white');
-            } else {
-                btn.className = btn.className.replace('bg-[#1C1917] text-white', 'bg-stone-100 text-[#78716C]');
-            }
-        });
+        document.getElementById('btn-daily')?.classList.toggle('bg-[#1C1917]',  type === 'daily');
+        document.getElementById('btn-daily')?.classList.toggle('text-white',     type === 'daily');
+        document.getElementById('btn-daily')?.classList.toggle('bg-stone-100',   type !== 'daily');
+        document.getElementById('btn-daily')?.classList.toggle('text-[#78716C]', type !== 'daily');
+        document.getElementById('btn-weekly')?.classList.toggle('bg-[#1C1917]',  type === 'weekly');
+        document.getElementById('btn-weekly')?.classList.toggle('text-white',    type === 'weekly');
+        document.getElementById('btn-weekly')?.classList.toggle('bg-stone-100',  type !== 'weekly');
+        document.getElementById('btn-weekly')?.classList.toggle('text-[#78716C]',type !== 'weekly');
 
         try {
             const month = window.reportMonth;
             const year  = window.reportYear;
-            const data  = await apiService.get(
-                `/reports/chart-data?type=${type}&month=${month}&year=${year}`
-            );
-            updateChart(data.data || []);
+            const res   = await fetch(`/reports/chart-data?type=${type}&month=${month}&year=${year}`, {
+                headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content }
+            });
+            const json  = await res.json();
+            updateChart(json.data || []);
         } catch (err) {
-            console.error('Failed to load chart data', err);
+            console.error('Gagal memuat data chart', err);
         }
     }
 
     // ── Export ─────────────────────────────────────────────────────────────────
     function triggerExport() {
-        const month  = window.reportMonth;
-        const year   = window.reportYear;
-        const url    = `/reports/export?type=daily&month=${month}&year=${year}&format=xlsx`;
-        window.open(url, '_blank');
+        const month = window.reportMonth;
+        const year  = window.reportYear;
+        window.open(`/reports/export?type=daily&month=${month}&year=${year}&format=xlsx`, '_blank');
     }
 
     function openFilter() {
-        // Future: open a filter modal
-        console.log('Filter modal – TODO');
+        document.getElementById('filter-modal')?.classList.remove('hidden');
     }
 
     // ── Init ───────────────────────────────────────────────────────────────────
@@ -144,10 +257,9 @@ const reportModule = (() => {
         }
     }
 
-    return { initChart, updateChart, handleFilterChange, triggerExport, openFilter, init };
+    return { init, initChart, updateChart, handleFilterChange, triggerExport, openFilter };
 })();
 
 window.reportModule = reportModule;
 
-// Auto-init when DOM is ready
 document.addEventListener('DOMContentLoaded', () => reportModule.init());

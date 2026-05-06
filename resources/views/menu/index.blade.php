@@ -158,27 +158,39 @@
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <form id="add-menu-form" class="mt-5 space-y-4">
+            <form id="add-menu-form" class="mt-5 space-y-4" novalidate>
                 @csrf
                 <div>
                     <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Product Name</label>
-                    <input type="text" name="name" placeholder="Isi nama menu"
-                            class="w-full px-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none">
+                    <input type="text" name="name" id="add-name" placeholder="Isi nama menu"
+                            class="w-full px-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none transition-colors">
+                    <p class="hidden mt-1.5 text-xs text-red-500 flex items-center gap-1" id="err-add-name">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                        <span></span>
+                    </p>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Category</label>
-                        <select name="category" id="add-category-select" class="w-full px-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none appearance-none bg-white">
+                        <select name="category" id="add-category-select" class="w-full px-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none appearance-none bg-white transition-colors">
                             <option value="">Pilih kategori</option>
                         </select>
+                        <p class="hidden mt-1.5 text-xs text-red-500 flex items-center gap-1" id="err-add-category">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                            <span></span>
+                        </p>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Price</label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-primary">Rp</span>
-                            <input type="number" name="price" placeholder="25000"
-                                    class="w-full pl-10 pr-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none">
+                            <input type="number" name="price" id="add-price" placeholder="25000" min="0"
+                                    class="w-full pl-10 pr-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none transition-colors">
                         </div>
+                        <p class="hidden mt-1.5 text-xs text-red-500 flex items-center gap-1" id="err-add-price">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                            <span></span>
+                        </p>
                     </div>
                 </div>
                 <div>
@@ -194,8 +206,8 @@
                 </div>
                 <div>
                     <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Product Image</label>
-                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-stone-200 rounded-2xl cursor-pointer hover:border-primary/50 hover:bg-orange-50/30 transition-all bg-stone-50/50">
-                        <div class="flex flex-col items-center">
+                    <label id="add-image-dropzone" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-stone-200 rounded-2xl cursor-pointer hover:border-primary/50 hover:bg-orange-50/30 transition-all bg-stone-50/50">
+                        <div class="flex flex-col items-center" id="add-image-placeholder">
                             <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mb-2">
                                 <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
@@ -204,7 +216,8 @@
                             <p class="text-sm font-medium text-[#1C1917]">Click to upload</p>
                             <p class="text-xs text-[#78716C]">JPG, PNG up to 5MB</p>
                         </div>
-                        <input type="file" name="image" accept="image/*" class="hidden" onchange="menuModule.previewImage(this)">
+                        <img id="add-image-preview" src="" alt="Preview" class="hidden w-full h-full object-cover rounded-2xl">
+                        <input type="file" name="image" id="add-image-input" accept="image/*" class="hidden" onchange="menuModule.previewImage(this)">
                     </label>
                 </div>
                 <div class="flex gap-3 pt-2 pb-2">
@@ -212,7 +225,7 @@
                             class="flex-1 py-3 text-sm font-semibold text-[#78716C] hover:text-[#1C1917] border border-stone-200 rounded-2xl transition-colors">
                         Batal
                     </button>
-                    <button type="submit"
+                    <button type="submit" id="add-submit-btn"
                             class="flex-1 py-3 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors shadow-lg shadow-orange-200">
                         Tambah Menu
                     </button>
@@ -364,25 +377,103 @@
 @push('scripts')
 <script>
 const menuModule = {
-    openAddModal() { document.getElementById('add-menu-modal').classList.remove('hidden'); },
+    // ── Helpers validasi ─────────────────────────────────────────────────────
+    _setError(fieldId, errId, msg) {
+        const field = document.getElementById(fieldId);
+        const err   = document.getElementById(errId);
+        if (!field || !err) return;
+        field.classList.add('border-red-400', 'focus:ring-red-200');
+        field.classList.remove('border-stone-200');
+        err.querySelector('span').textContent = msg;
+        err.classList.remove('hidden');
+        err.classList.add('flex');
+    },
+    _clearError(fieldId, errId) {
+        const field = document.getElementById(fieldId);
+        const err   = document.getElementById(errId);
+        if (!field || !err) return;
+        field.classList.remove('border-red-400', 'focus:ring-red-200');
+        field.classList.add('border-stone-200');
+        err.classList.add('hidden');
+        err.classList.remove('flex');
+    },
+    _clearAllAddErrors() {
+        [['add-name','err-add-name'], ['add-category-select','err-add-category'], ['add-price','err-add-price']].forEach(([f,e]) => this._clearError(f,e));
+    },
+    _validateAddForm() {
+        let valid = true;
+        const name  = document.getElementById('add-name')?.value.trim();
+        const cat   = document.getElementById('add-category-select')?.value;
+        const price = document.getElementById('add-price')?.value;
+
+        this._clearAllAddErrors();
+
+        if (!name) {
+            this._setError('add-name', 'err-add-name', 'Nama menu tidak boleh kosong.');
+            valid = false;
+        } else if (name.length < 2) {
+            this._setError('add-name', 'err-add-name', 'Nama menu minimal 2 karakter.');
+            valid = false;
+        }
+        if (!cat) {
+            this._setError('add-category-select', 'err-add-category', 'Pilih kategori terlebih dahulu.');
+            valid = false;
+        }
+        if (!price || price === '') {
+            this._setError('add-price', 'err-add-price', 'Harga tidak boleh kosong.');
+            valid = false;
+        } else if (parseInt(price) < 0) {
+            this._setError('add-price', 'err-add-price', 'Harga tidak boleh negatif.');
+            valid = false;
+        }
+        return valid;
+    },
+
+    // ── Modal Add ────────────────────────────────────────────────────────────
+    openAddModal() {
+        this._clearAllAddErrors();
+        document.getElementById('add-menu-modal').classList.remove('hidden');
+        setTimeout(() => document.getElementById('add-name')?.focus(), 100);
+    },
     closeAddModal() {
         document.getElementById('add-menu-modal').classList.add('hidden');
         document.getElementById('add-menu-form').reset();
+        this._clearAllAddErrors();
+        // Reset image preview
+        const preview = document.getElementById('add-image-preview');
+        const placeholder = document.getElementById('add-image-placeholder');
+        if (preview) { preview.src = ''; preview.classList.add('hidden'); }
+        if (placeholder) placeholder.classList.remove('hidden');
     },
+
+    // ── Modal Edit ───────────────────────────────────────────────────────────
     openEditModal(id, name, category, price, stock, image) {
         document.getElementById('edit-product-id').value = id;
         document.getElementById('edit-name').value = name;
-        document.getElementById('edit-category').value = category;
         document.getElementById('edit-price').value = price;
         document.getElementById('edit-stock').value = stock;
         document.getElementById('edit-product-image').src = image;
+        // Set kategori setelah DOM ready (kategori mungkin baru di-populate)
+        const setCategory = () => {
+            const sel = document.getElementById('edit-category');
+            if (sel) sel.value = category;
+        };
+        setCategory();
+        setTimeout(setCategory, 300); // fallback jika populate async belum selesai
         document.getElementById('edit-menu-modal').classList.remove('hidden');
     },
     closeEditModal() { document.getElementById('edit-menu-modal').classList.add('hidden'); },
+
+    // ── Preview gambar ───────────────────────────────────────────────────────
     previewImage(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
-            reader.onload = (e) => { /* optionally show preview */ };
+            reader.onload = (e) => {
+                const preview = document.getElementById('add-image-preview');
+                const placeholder = document.getElementById('add-image-placeholder');
+                if (preview) { preview.src = e.target.result; preview.classList.remove('hidden'); }
+                if (placeholder) placeholder.classList.add('hidden');
+            };
             reader.readAsDataURL(input.files[0]);
         }
     },
@@ -397,6 +488,8 @@ const menuModule = {
         document.getElementById('edit-product-image').src = 'https://placehold.co/400x400/FFF7ED/F97316?text=No+Image';
         document.getElementById('edit-image-input').value = '';
     },
+
+    // ── Modal Delete ─────────────────────────────────────────────────────────
     openDeleteModal(id, name) {
         document.getElementById('delete-product-id').value = id;
         document.getElementById('delete-confirm-text').innerHTML =
@@ -405,9 +498,9 @@ const menuModule = {
     },
     closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); },
     async confirmDelete() {
-        const id = document.getElementById('delete-product-id').value;
+        const id    = document.getElementById('delete-product-id').value;
         const token = document.querySelector('meta[name="csrf-token"]').content;
-        const res = await fetch(`/menu/${id}`, {
+        const res   = await fetch(`/menu/${id}`, {
             method: 'DELETE',
             headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' }
         });
@@ -415,6 +508,19 @@ const menuModule = {
         if (data.success) window.location.reload();
     }
 };
+
+// ── Real-time clear error on input ───────────────────────────────────────────
+['add-name', 'add-price'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', function() {
+        menuModule._clearError(id, 'err-' + id.replace('add-', 'err-add-') );
+    });
+});
+document.getElementById('add-category-select')?.addEventListener('change', function() {
+    menuModule._clearError('add-category-select', 'err-add-category');
+});
+// Fix: map id ke error id yang benar
+document.getElementById('add-name')?.addEventListener('input', () => menuModule._clearError('add-name', 'err-add-name'));
+document.getElementById('add-price')?.addEventListener('input', () => menuModule._clearError('add-price', 'err-add-price'));
 
 // Stock buttons
 document.getElementById('add-stock-minus').addEventListener('click', () => {
@@ -426,21 +532,44 @@ document.getElementById('add-stock-plus').addEventListener('click', () => {
     inp.value = parseInt(inp.value || 0) + 1;
 });
 
-// Add form
+// ── Add form submit ───────────────────────────────────────────────────────────
 document.getElementById('add-menu-form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const formData = new FormData(this);
-    const res = await fetch('{{ route("menu.store") }}', {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
-        body: formData
-    });
-    const data = await res.json();
-    if (data.success) window.location.reload();
-    else alert('Error: ' + (data.message || 'Gagal menambah menu'));
+    if (!menuModule._validateAddForm()) return;
+
+    const btn = document.getElementById('add-submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<svg class="w-4 h-4 animate-spin mx-auto" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>';
+
+    try {
+        const res  = await fetch('{{ route("menu.store") }}', {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+            body: new FormData(this)
+        });
+        const data = await res.json();
+        if (data.success) {
+            window.location.reload();
+        } else {
+            // Tampilkan error dari server (validasi backend)
+            if (data.errors) {
+                if (data.errors.name)     menuModule._setError('add-name', 'err-add-name', data.errors.name[0]);
+                if (data.errors.category) menuModule._setError('add-category-select', 'err-add-category', data.errors.category[0]);
+                if (data.errors.price)    menuModule._setError('add-price', 'err-add-price', data.errors.price[0]);
+            } else {
+                menuModule._setError('add-name', 'err-add-name', data.message || 'Gagal menambah menu, coba lagi.');
+            }
+            btn.disabled = false;
+            btn.textContent = 'Tambah Menu';
+        }
+    } catch {
+        btn.disabled = false;
+        btn.textContent = 'Tambah Menu';
+        menuModule._setError('add-name', 'err-add-name', 'Koneksi gagal, periksa jaringan Anda.');
+    }
 });
 
-// Edit form
+// ── Edit form submit ──────────────────────────────────────────────────────────
 document.getElementById('edit-menu-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const id = document.getElementById('edit-product-id').value;
