@@ -6,6 +6,21 @@
     <title>Receipt #{{ $order->order_number }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    {{-- Inject tema dari database --}}
+    @auth
+    <script>
+    window.__userTheme = {
+        color: '{{ auth()->user()->theme_color ?? "#F97316" }}',
+        darkMode: {{ (auth()->user()->dark_mode ?? false) ? 'true' : 'false' }}
+    };
+    </script>
+    <script src="{{ asset('js/store/themeStore.js') }}"></script>
+    <script>
+    if (window.themeStore && window.__userTheme) {
+        themeStore.applyTheme(window.__userTheme.color, window.__userTheme.darkMode);
+    }
+    </script>
+    @endauth
     <style>body { font-family: 'Inter', sans-serif; background: rgba(0,0,0,0.4); }</style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -98,7 +113,7 @@
 
             {{-- Actions --}}
             <a href="{{ route('pos.index') }}"
-               class="flex w-full items-center justify-center py-3.5 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors shadow-lg shadow-orange-200 mb-3">
+                class="flex w-full items-center justify-center py-3.5 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors shadow-lg shadow-orange-200 mb-3">
                 New Order
             </a>
             <div class="grid grid-cols-2 gap-3">

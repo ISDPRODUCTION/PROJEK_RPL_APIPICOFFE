@@ -20,6 +20,8 @@ class User extends Authenticatable
         'avatar',
         'employee_id',
         'shift_started_at',
+        'theme_color',      // ← tambahan
+        'dark_mode',        // ← tambahan
     ];
 
     protected $hidden = [
@@ -31,6 +33,7 @@ class User extends Authenticatable
         'shift_started_at'  => 'datetime',
         'email_verified_at' => 'datetime',
         'password'          => 'hashed',
+        'dark_mode'         => 'boolean', // ← tambahan
     ];
 
     public function orders(): HasMany

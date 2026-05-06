@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Models\Category;
 use App\Repositories\ProductRepository;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 
 class ProductService
 {
@@ -29,6 +31,15 @@ class ProductService
             $data['image'] = $image->store('products', 'public');
         }
 
+        // Konversi slug kategori → category_id
+        if (isset($data['category'])) {
+            $categoryModel = Category::where('slug', $data['category'])->first();
+            if ($categoryModel) {
+                $data['category_id'] = $categoryModel->id;
+            }
+            unset($data['category']);
+        }
+
         // Generate SKU unik
         do {
             $count = $this->productRepository->count() + rand(1, 999);
@@ -45,7 +56,7 @@ class ProductService
         $product = $this->productRepository->findById($id);
 
         if (!$product) {
-            throw new \RuntimeException("Product not found.");
+            throw new RuntimeException("Product not found.");
         }
 
         if ($image) {
@@ -53,6 +64,15 @@ class ProductService
                 Storage::disk('public')->delete($product->image);
             }
             $data['image'] = $image->store('products', 'public');
+        }
+
+        // Konversi slug kategori → category_id
+        if (isset($data['category'])) {
+            $categoryModel = Category::where('slug', $data['category'])->first();
+            if ($categoryModel) {
+                $data['category_id'] = $categoryModel->id;
+            }
+            unset($data['category']);
         }
 
         return $this->productRepository->update($id, $data);

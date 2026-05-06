@@ -20,7 +20,6 @@
         .btn-login { width: 100%; background: #F97316; color: #fff; border: none; border-radius: 14px; padding: 15px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s, transform 0.1s; margin-top: 8px; }
         .btn-login:hover { background: #EA580C; }
         .btn-login:active { transform: scale(0.98); }
-        .logo-icon { width: 48px; height: 48px; background: #FFF7ED; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
         .error-msg { background: #FEF2F2; border: 1px solid #FECACA; color: #DC2626; padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; }
     </style>
 </head>
@@ -59,7 +58,7 @@
             </div>
 
             <div style="text-align:right;margin-bottom:20px;">
-                <a href="#" style="color:#F97316;font-size:13px;font-weight:600;text-decoration:none;">Lupa Kata Sandi?</a>
+                <a href="{{ route('password.request') }}" style="color:#F97316;font-size:13px;font-weight:600;text-decoration:none;">Lupa Kata Sandi?</a>
             </div>
 
             <button type="submit" class="btn-login">
@@ -74,10 +73,17 @@
     {{-- Footer Logo --}}
     <div style="margin-top:36px;display:flex;flex-direction:column;align-items:center;gap:10px;">
         <div style="display:flex;align-items:center;gap:10px;">
-            <div class="logo-icon">
-                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#F97316" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
+            {{-- Logo: pakai gambar jika sudah diupload, fallback ke SVG --}}
+            <div style="width:48px;height:48px;background:#FFF7ED;border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                @if(\Illuminate\Support\Facades\Storage::disk('public')->exists('settings/logo.png'))
+                    <img src="{{ \Illuminate\Support\Facades\Storage::url('settings/logo.png') }}"
+                         alt="Logo"
+                         style="width:100%;height:100%;object-fit:cover;">
+                @else
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#F97316" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                @endif
             </div>
             <span style="font-size:20px;font-weight:800;color:#1C1917;">Apipi <span style="color:#F97316;">Coffe</span></span>
         </div>

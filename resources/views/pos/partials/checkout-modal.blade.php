@@ -86,7 +86,7 @@
 
 {{-- Success Modal --}}
 <div id="success-modal"
-     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
     <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm z-10 p-8 text-center">
         {{-- Success Icon --}}
@@ -111,14 +111,14 @@
 
         <div class="space-y-3">
             <a id="new-order-btn" href="{{ route('pos.index') }}"
-               class="flex w-full items-center justify-center gap-2 py-3.5 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors shadow-lg shadow-orange-200">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5h15M17 21a1 1 0 100-2 1 1 0 000 2zM7 21a1 1 0 100-2 1 1 0 000 2z"/>
+                class="flex w-full items-center justify-center gap-2 py-3.5 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors shadow-lg shadow-orange-200">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 New Order
             </a>
             <a id="print-receipt-btn" href="#"
-               class="flex w-full items-center justify-center gap-2 py-3.5 border-2 border-primary text-primary rounded-2xl text-sm font-semibold hover:bg-orange-50 transition-colors">
+                class="flex w-full items-center justify-center gap-2 py-3.5 border-2 border-primary text-primary rounded-2xl text-sm font-semibold hover:bg-orange-50 transition-colors">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                 </svg>

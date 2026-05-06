@@ -1,23 +1,40 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\ThemeController;
 
 // ── Auth ───────────────────────────────────────────────────────────────────────
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post')->middleware('guest');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// Password Reset
+Route::get('/forgot-password', [PasswordResetController::class, 'showForm'])->name('password.request');
+Route::post('/forgot-password/check', [PasswordResetController::class, 'checkEmail'])->name('password.check-email');
+Route::post('/forgot-password/reset', [PasswordResetController::class, 'resetDirect'])->name('password.reset-direct');
+
 // ── Authenticated ──────────────────────────────────────────────────────────────
 Route::middleware('auth')->group(function () {
 
+    // ── Categories (API + Store) ──────────────────────────────────────────────
+    Route::prefix('categories')->name('categories.')->middleware('role:cashier,admin,manager,supervisor')->group(function () {
+        Route::get('/api', [CategoryController::class, 'getPaginated'])->name('api');
+        Route::post('/', [CategoryController::class, 'store'])->name('store');
+    });
+
     // ── Dashboard POS ─────────────────────────────────────────────────────────
     Route::get('/', [PosController::class, 'index'])->name('pos.index');
+    // ── Theme Settings ─────────────────────────────────────────────────────────
+    Route::post('/settings/theme', [ThemeController::class, 'update'])->name('settings.theme.update');
+
 
     // ── Orders ────────────────────────────────────────────────────────────────
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
@@ -38,7 +55,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/export', [ReportController::class, 'export'])->name('export');
         Route::get('/filter', [ReportController::class, 'filter'])->name('filter');
     });
-
     // ── Settings ──────────────────────────────────────────────────────────────
     Route::prefix('settings')->name('settings.')->group(function () {
 

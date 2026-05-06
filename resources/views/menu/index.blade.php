@@ -10,13 +10,19 @@
             <h1 class="text-2xl font-bold text-[#1C1917]">Menu Management</h1>
             <span class="text-base text-[#78716C]">({{ $products->total() }} Items)</span>
         </div>
-        <button onclick="menuModule.openAddModal()"
-                class="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors shadow-lg shadow-orange-200">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v8M8 12h8"/>
-            </svg>
-            Tambah Menu
-        </button>
+        <div class="flex gap-2">
+            <button onclick="categoryModule.openAddModal()"
+                    class="flex items-center gap-2 px-4 py-2.5 bg-stone-800 hover:bg-stone-900 text-white rounded-2xl text-sm font-semibold transition-colors">
+                Tambah Kategori
+            </button>
+            <button onclick="menuModule.openAddModal()"
+                    class="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors shadow-lg shadow-orange-200">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v8M8 12h8"/>
+                </svg>
+                Tambah Menu
+            </button>
+        </div>
     </div>
 
     {{-- Filters --}}
@@ -29,85 +35,82 @@
                     class="w-full pl-9 pr-4 py-2.5 text-sm bg-white rounded-2xl border border-stone-200 focus:ring-2 focus:ring-primary/30 outline-none">
         </div>
 
-        <div class="flex gap-2 ml-auto">
-            @foreach(['all' => 'All', 'food' => 'Food', 'drinks' => 'Drinks', 'snacks' => 'Snacks', 'dessert' => 'Dessert'] as $key => $label)
-            <a href="{{ route('menu.index', ['category' => $key, 'search' => $search]) }}"
-                class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors
-                        {{ ($category ?? 'all') === $key
-                            ? 'text-primary border-b-2 border-primary'
-                            : 'text-[#78716C] hover:text-[#1C1917]' }}">
-                {{ $label }}
-            </a>
-            @endforeach
+        <div class="flex items-center gap-2 ml-auto">
+            <div id="category-container" class="flex gap-2"></div>
+            <div class="w-px h-6 bg-stone-300 mx-1"></div>
+            <div id="category-pagination" class="flex gap-1"></div>
         </div>
     </div>
-
+    
     {{-- Table --}}
     <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <table class="w-full">
-            <thead>
-                <tr class="border-b border-stone-100">
-                    <th class="text-left py-4 px-6 text-xs font-bold text-[#78716C] uppercase tracking-wider w-16">Image</th>
-                    <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Product Name</th>
-                    <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Category</th>
-                    <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Price</th>
-                    <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Stock</th>
-                    <th class="text-right py-4 px-6 text-xs font-bold text-[#78716C] uppercase tracking-wider">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-stone-100">
-                @forelse($products as $product)
-                <tr class="hover:bg-stone-50 transition-colors">
-                    <td class="py-4 px-6">
-                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
-                            class="w-12 h-12 rounded-xl object-cover bg-stone-100">
-                    </td>
-                    <td class="py-4 px-4">
-                        <p class="text-sm font-semibold text-[#1C1917]">{{ $product->name }}</p>
-                        <p class="text-xs text-[#78716C]">ID: {{ $product->sku }}</p>
-                    </td>
-                    <td class="py-4 px-4">
-                        <span class="px-2.5 py-1 bg-stone-100 text-[#78716C] text-xs font-medium rounded-lg capitalize">
-                            {{ $product->category }}
-                        </span>
-                    </td>
-                    <td class="py-4 px-4">
-                        <span class="text-sm font-semibold text-[#1C1917]">{{ $product->formatted_price }}</span>
-                    </td>
-                    <td class="py-4 px-4">
-                        <span class="flex items-center gap-1.5 text-sm font-medium
-                                    {{ $product->stock > 10 ? 'text-green-600' : ($product->stock > 0 ? 'text-orange-500' : 'text-red-500') }}">
-                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                            {{ $product->stock }} pcs
-                        </span>
-                    </td>
-                    <td class="py-4 px-6">
-                        <div class="flex items-center justify-end gap-2">
-                            <button onclick="menuModule.openEditModal({{ $product->id }}, '{{ addslashes($product->name) }}', '{{ $product->category }}', {{ $product->price }}, {{ $product->stock }}, '{{ $product->image_url }}')"
-                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-blue-200 text-blue-500 hover:bg-blue-50 transition-colors">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                            </button>
-                            <button onclick="menuModule.openDeleteModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
-                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="py-16 text-center text-[#78716C]">No products found.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[560px]">
+                <thead>
+                    <tr class="border-b border-stone-100">
+                        <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider w-16">Image</th>
+                        <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Product Name</th>
+                        <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Category</th>
+                        <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Price</th>
+                        <th class="text-left py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Stock</th>
+                        <th class="text-right py-4 px-4 text-xs font-bold text-[#78716C] uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-100">
+                    @forelse($products as $product)
+                    <tr class="hover:bg-stone-50 transition-colors">
+                        <td class="py-3 px-4">
+                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
+                                class="w-11 h-11 rounded-xl object-cover bg-stone-100">
+                        </td>
+                        <td class="py-3 px-4">
+                            <p class="text-sm font-semibold text-[#1C1917]">{{ $product->name }}</p>
+                            <p class="text-xs text-[#78716C]">ID: {{ $product->sku }}</p>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-1 bg-stone-100 text-[#78716C] text-xs font-medium rounded-lg capitalize">
+                                {{ $product->category?->name ?? '-' }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="text-sm font-semibold text-[#1C1917]">{{ $product->formatted_price }}</span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="flex items-center gap-1.5 text-sm font-medium
+                                        {{ $product->stock > 10 ? 'text-green-600' : ($product->stock > 0 ? 'text-orange-500' : 'text-red-500') }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current flex-shrink-0"></span>
+                                {{ $product->stock }} pcs
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="flex items-center justify-end gap-2">
+                                <button onclick="menuModule.openEditModal({{ $product->id }}, '{{ addslashes($product->name) }}', '{{ $product->category?->slug }}', {{ $product->price }}, {{ $product->stock }}, '{{ $product->image_url }}')"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-blue-200 text-blue-500 hover:bg-blue-50 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
+                                <button onclick="menuModule.openDeleteModal({{ $product->id }}, '{{ addslashes($product->name) }}')"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="py-16 text-center text-[#78716C]">No products found.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
         {{-- Pagination --}}
-        <div class="px-6 py-4 border-t border-stone-100 flex items-center justify-between">
+        @if($products->total() > 0)
+        <div class="px-4 md:px-6 py-4 border-t border-stone-100 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p class="text-sm text-[#78716C]">Showing {{ $products->firstItem() }} – {{ $products->lastItem() }} of {{ $products->total() }} items</p>
             <div class="flex items-center gap-1">
                 @if($products->onFirstPage())
@@ -119,7 +122,6 @@
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M15 19l-7-7 7-7"/></svg>
                 </a>
                 @endif
-
                 @for($i = 1; $i <= min($products->lastPage(), 5); $i++)
                 <a href="{{ $products->url($i) }}"
                     class="w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold transition-colors
@@ -127,7 +129,6 @@
                     {{ $i }}
                 </a>
                 @endfor
-
                 @if(!$products->onLastPage())
                 <a href="{{ $products->nextPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-full text-[#78716C] hover:bg-stone-100">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M9 5l7 7-7 7"/></svg>
@@ -135,14 +136,19 @@
                 @endif
             </div>
         </div>
+        @endif
     </div>
 </div>
 
 {{-- Add Menu Modal --}}
-<div id="add-menu-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+<div id="add-menu-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="menuModule.closeAddModal()"></div>
-    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg z-10">
-        <div class="p-6">
+    <div class="relative bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg z-10 max-h-[90vh] overflow-y-auto">
+        <div class="p-5 md:p-6">
+            {{-- Mobile drag indicator --}}
+            <div class="flex justify-center mb-4 sm:hidden">
+                <div class="w-10 h-1 bg-stone-200 rounded-full"></div>
+            </div>
             <div class="flex items-start justify-between mb-1">
                 <div>
                     <h2 class="text-xl font-bold text-[#1C1917]">Add New Menu</h2>
@@ -152,7 +158,6 @@
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-
             <form id="add-menu-form" class="mt-5 space-y-4">
                 @csrf
                 <div>
@@ -160,59 +165,51 @@
                     <input type="text" name="name" placeholder="Isi nama menu"
                             class="w-full px-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none">
                 </div>
-
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Category</label>
-                        <select name="category" class="w-full px-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none appearance-none bg-white">
-                            <option value="">Select category</option>
-                            <option value="food">Food</option>
-                            <option value="drinks">Drinks</option>
-                            <option value="snacks">Snacks</option>
-                            <option value="dessert">Dessert</option>
+                        <select name="category" id="add-category-select" class="w-full px-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none appearance-none bg-white">
+                            <option value="">Pilih kategori</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Price</label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-primary">Rp</span>
-                            <input type="number" name="price" placeholder="25.000"
+                            <input type="number" name="price" placeholder="25000"
                                     class="w-full pl-10 pr-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none">
                         </div>
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Initial Stock</label>
                     <div class="flex items-center gap-2">
-                        <input type="number" name="stock" value="0" min="0"
-                                class="flex-1 px-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none">
-                        <button type="button" onclick="this.previousElementSibling.value=Math.max(0,+this.previousElementSibling.value-1)"
+                        <button type="button" id="add-stock-minus"
                                 class="w-10 h-10 flex items-center justify-center rounded-xl border border-stone-200 text-[#78716C] hover:border-stone-300 text-lg font-light">−</button>
-                        <button type="button" onclick="this.previousElementSibling.previousElementSibling.previousElementSibling.value=+this.previousElementSibling.previousElementSibling.previousElementSibling.value+1"
+                        <input type="number" name="stock" id="add-stock-input" value="0" min="0"
+                                class="flex-1 text-center px-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none">
+                        <button type="button" id="add-stock-plus"
                                 class="w-10 h-10 flex items-center justify-center rounded-xl border border-stone-200 text-[#78716C] hover:border-stone-300 text-lg font-light">+</button>
                     </div>
                 </div>
-
                 <div>
                     <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Product Image</label>
-                    <label class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-stone-200 rounded-2xl cursor-pointer hover:border-primary/50 hover:bg-orange-50/30 transition-all bg-stone-50/50">
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-stone-200 rounded-2xl cursor-pointer hover:border-primary/50 hover:bg-orange-50/30 transition-all bg-stone-50/50">
                         <div class="flex flex-col items-center">
                             <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center mb-2">
                                 <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
                                 </svg>
                             </div>
-                            <p class="text-sm font-medium text-[#1C1917]">Click to upload or drag and drop</p>
-                            <p class="text-xs text-[#78716C]">JPG, PNG up to 5MB (1:1 aspect ratio recommended)</p>
+                            <p class="text-sm font-medium text-[#1C1917]">Click to upload</p>
+                            <p class="text-xs text-[#78716C]">JPG, PNG up to 5MB</p>
                         </div>
                         <input type="file" name="image" accept="image/*" class="hidden" onchange="menuModule.previewImage(this)">
                     </label>
                 </div>
-
-                <div class="flex gap-3 pt-2">
+                <div class="flex gap-3 pt-2 pb-2">
                     <button type="button" onclick="menuModule.closeAddModal()"
-                            class="flex-1 py-3 text-sm font-semibold text-[#78716C] hover:text-[#1C1917] transition-colors">
+                            class="flex-1 py-3 text-sm font-semibold text-[#78716C] hover:text-[#1C1917] border border-stone-200 rounded-2xl transition-colors">
                         Batal
                     </button>
                     <button type="submit"
@@ -226,37 +223,35 @@
 </div>
 
 {{-- Edit Menu Modal --}}
-<div id="edit-menu-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+<div id="edit-menu-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="menuModule.closeEditModal()"></div>
-    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg z-10">
-        <div class="p-6">
+    <div class="relative bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg z-10 max-h-[90vh] overflow-y-auto">
+        <div class="p-5 md:p-6">
+            <div class="flex justify-center mb-4 sm:hidden">
+                <div class="w-10 h-1 bg-stone-200 rounded-full"></div>
+            </div>
             <div class="flex items-start justify-between mb-1">
                 <div>
                     <h2 class="text-xl font-bold text-[#1C1917]">Edit Menu</h2>
-                    <p class="text-sm text-[#78716C]">Update the details for the existing product catalog.</p>
+                    <p class="text-sm text-[#78716C]">Update the details for the existing product.</p>
                 </div>
                 <button onclick="menuModule.closeEditModal()" class="text-stone-400 hover:text-[#1C1917] mt-1">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-
             <form id="edit-menu-form" class="mt-5">
                 @csrf
-                @method('POST')
                 <input type="hidden" name="_productId" id="edit-product-id">
-
                 <div class="flex gap-4 mb-4">
-                    <div class="flex flex-col items-center gap-2">
-                        <img id="edit-product-image" src="" alt="Product" class="w-28 h-28 rounded-xl object-cover bg-stone-100">
-                        <button type="button" onclick="document.getElementById('edit-image-input').click()" class="text-xs font-semibold text-primary flex items-center gap-1">                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                            Change Image
+                    <div class="flex flex-col items-center gap-2 flex-shrink-0">
+                        <img id="edit-product-image" src="" alt="Product" class="w-24 h-24 rounded-xl object-cover bg-stone-100">
+                        <button type="button" onclick="document.getElementById('edit-image-input').click()" class="text-xs font-semibold text-primary flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            Ganti
                         </button>
-                        <button type="button" onclick="menuModule.removeEditImage()" class="text-xs font-semibold text-red-400 flex items-center gap-1">
-                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            Remove
-                        </button>
-                        <input type="file" id="edit-image-input" name="image" accept="image/*" class="hidden" onchange="menuModule.previewEditImage(this)">                    </div>
-                    <div class="flex-1 space-y-3">
+                        <input type="file" id="edit-image-input" name="image" accept="image/*" class="hidden" onchange="menuModule.previewEditImage(this)">
+                    </div>
+                    <div class="flex-1 space-y-3 min-w-0">
                         <div>
                             <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Product Name</label>
                             <input type="text" id="edit-name" name="name"
@@ -266,15 +261,11 @@
                             <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Category</label>
                             <select id="edit-category" name="category"
                                     class="w-full px-4 py-2.5 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none bg-white">
-                                <option value="food">Food</option>
-                                <option value="drinks">Drinks</option>
-                                <option value="snacks">Snacks</option>
-                                <option value="dessert">Dessert</option>
+                                <option value="">Pilih kategori</option>
                             </select>
                         </div>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-2 gap-4 mb-5">
                     <div>
                         <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Price</label>
@@ -285,26 +276,25 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Initial Stock</label>
-                        <div class="flex items-center gap-2">
+                        <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Stock</label>
+                        <div class="flex items-center gap-1">
                             <button type="button" onclick="document.getElementById('edit-stock').value=Math.max(0,+document.getElementById('edit-stock').value-1)"
-                                    class="w-9 h-9 flex items-center justify-center rounded-xl border border-stone-200 text-[#78716C] text-lg font-light">−</button>
+                                    class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl border border-stone-200 text-[#78716C] text-lg font-light">−</button>
                             <input type="number" id="edit-stock" name="stock" min="0"
-                                    class="w-16 text-center px-2 py-2.5 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none">
+                                    class="flex-1 min-w-0 text-center px-2 py-2.5 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none">
                             <button type="button" onclick="document.getElementById('edit-stock').value=+document.getElementById('edit-stock').value+1"
-                                    class="w-9 h-9 flex items-center justify-center rounded-xl border border-stone-200 text-[#78716C] text-lg font-light">+</button>
+                                    class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl border border-stone-200 text-[#78716C] text-lg font-light">+</button>
                         </div>
                     </div>
                 </div>
-
-                <div class="flex gap-3">
+                <div class="flex gap-3 pb-2">
                     <button type="button" onclick="menuModule.closeEditModal()"
-                            class="flex-1 py-3 text-sm font-semibold text-[#78716C] hover:text-[#1C1917] transition-colors">
+                            class="flex-1 py-3 text-sm font-semibold border border-stone-200 rounded-2xl text-[#78716C] hover:text-[#1C1917] transition-colors">
                         Batal
                     </button>
                     <button type="submit"
                             class="flex-1 py-3 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors shadow-lg shadow-orange-200">
-                        Simpan Perubahan
+                        Simpan
                     </button>
                 </div>
             </form>
@@ -312,10 +302,13 @@
     </div>
 </div>
 
-{{-- Delete Confirm Modal --}}
-<div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+{{-- Delete Modal --}}
+<div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="menuModule.closeDeleteModal()"></div>
-    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm z-10 p-8 text-center">
+    <div class="relative bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full sm:max-w-sm z-10 p-6 sm:p-8 text-center">
+        <div class="flex justify-center mb-4 sm:hidden">
+            <div class="w-10 h-1 bg-stone-200 rounded-full"></div>
+        </div>
         <div class="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-5">
             <svg class="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -326,13 +319,42 @@
         <input type="hidden" id="delete-product-id">
         <div class="flex gap-3">
             <button onclick="menuModule.closeDeleteModal()"
-                    class="flex-1 py-3 text-sm font-semibold border-2 border-stone-200 rounded-2xl text-[#78716C] hover:border-stone-300 transition-colors">
-                Batal
-            </button>
+                    class="flex-1 py-3 text-sm font-semibold border-2 border-stone-200 rounded-2xl text-[#78716C]">Batal</button>
             <button onclick="menuModule.confirmDelete()"
-                    class="flex-1 py-3 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors">
-                Hapus
-            </button>
+                    class="flex-1 py-3 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors">Hapus</button>
+        </div>
+    </div>
+</div>
+
+{{-- Modal Tambah Kategori --}}
+<div id="add-category-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="categoryModule.closeAddModal()"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md z-10">
+        <div class="p-6">
+            <div class="flex items-start justify-between mb-1">
+                <h2 class="text-xl font-bold text-[#1C1917]">Tambah Kategori</h2>
+                <button onclick="categoryModule.closeAddModal()" class="text-stone-400 hover:text-[#1C1917]">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="add-category-form" class="mt-5 space-y-4">
+                @csrf
+                <div>
+                    <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Nama Kategori</label>
+                    <input type="text" name="name" placeholder="Contoh: Hot Drinks" required
+                           class="w-full px-4 py-3 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="categoryModule.closeAddModal()"
+                            class="flex-1 py-3 text-sm font-semibold text-[#78716C] border border-stone-200 rounded-2xl transition-colors">
+                        Batal
+                    </button>
+                    <button type="submit"
+                            class="flex-1 py-3 bg-stone-800 hover:bg-stone-900 text-white rounded-2xl text-sm font-semibold transition-colors">
+                        Simpan Kategori
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -343,7 +365,7 @@
 <script>
 const menuModule = {
     openAddModal() { document.getElementById('add-menu-modal').classList.remove('hidden'); },
-    closeAddModal() { 
+    closeAddModal() {
         document.getElementById('add-menu-modal').classList.add('hidden');
         document.getElementById('add-menu-form').reset();
     },
@@ -357,12 +379,17 @@ const menuModule = {
         document.getElementById('edit-menu-modal').classList.remove('hidden');
     },
     closeEditModal() { document.getElementById('edit-menu-modal').classList.add('hidden'); },
-        previewEditImage(input) {
+    previewImage(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
-            reader.onload = (e) => {
-                document.getElementById('edit-product-image').src = e.target.result;
-            };
+            reader.onload = (e) => { /* optionally show preview */ };
+            reader.readAsDataURL(input.files[0]);
+        }
+    },
+    previewEditImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => { document.getElementById('edit-product-image').src = e.target.result; };
             reader.readAsDataURL(input.files[0]);
         }
     },
@@ -382,62 +409,137 @@ const menuModule = {
         const token = document.querySelector('meta[name="csrf-token"]').content;
         const res = await fetch(`/menu/${id}`, {
             method: 'DELETE',
-            headers: { 
-                'X-CSRF-TOKEN': token,
-                'Accept': 'application/json'
-            }
+            headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' }
         });
         const data = await res.json();
         if (data.success) window.location.reload();
     }
 };
 
-// Add form submit
-document.getElementById('add-menu-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const token = document.querySelector('meta[name="csrf-token"]').content;
-    const formData = new FormData(this);
-    
-    const res = await fetch('{{ route("menu.store") }}', { 
-        method: 'POST', 
-        headers: { 
-            'X-CSRF-TOKEN': token,
-            'Accept': 'application/json'
-        },
-        body: formData 
-    });
-    
-    const data = await res.json();
-    if (data.success) {
-        window.location.reload();
-    } else {
-        alert('Error: ' + (data.message || 'Gagal menambah menu'));
-    }
+// Stock buttons
+document.getElementById('add-stock-minus').addEventListener('click', () => {
+    const inp = document.getElementById('add-stock-input');
+    inp.value = Math.max(0, parseInt(inp.value || 0) - 1);
+});
+document.getElementById('add-stock-plus').addEventListener('click', () => {
+    const inp = document.getElementById('add-stock-input');
+    inp.value = parseInt(inp.value || 0) + 1;
 });
 
-// Edit form submit
+// Add form
+document.getElementById('add-menu-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const res = await fetch('{{ route("menu.store") }}', {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+        body: formData
+    });
+    const data = await res.json();
+    if (data.success) window.location.reload();
+    else alert('Error: ' + (data.message || 'Gagal menambah menu'));
+});
+
+// Edit form
 document.getElementById('edit-menu-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const id = document.getElementById('edit-product-id').value;
-    const token = document.querySelector('meta[name="csrf-token"]').content;
     const formData = new FormData(this);
     formData.append('_method', 'POST');
-    
-    const res = await fetch(`/menu/${id}`, { 
-        method: 'POST', 
-        headers: { 
-            'X-CSRF-TOKEN': token,
-            'Accept': 'application/json'
-        },
-        body: formData 
+    const res = await fetch(`/menu/${id}`, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+        body: formData
     });
-    
     const data = await res.json();
-    if (data.success) {
-        window.location.reload();
-    } else {
-        alert('Error: ' + (data.message || 'Gagal update menu'));
-    }
+    if (data.success) window.location.reload();
+    else alert('Error: ' + (data.message || 'Gagal update menu'));
 });
+
+// ── Search ────────────────────────────────────────────────────────────────────
+document.getElementById('menu-search').addEventListener('input', function() {
+    clearTimeout(this._timer);
+    this._timer = setTimeout(() => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('search', this.value);
+        url.searchParams.set('page', 1); // reset ke halaman 1
+        window.location.href = url.toString();
+    }, 400);
+});
+
+// ── Category Module ───────────────────────────────────────────────────────────
+const categoryModule = {
+    currentCategory: (new URLSearchParams(window.location.search)).get('category') || 'all',
+    search: (new URLSearchParams(window.location.search)).get('search') || '',
+
+    async loadCategories(page = 1) {
+        try {
+            const res = await fetch('/categories/api?page=' + page);
+            const data = await res.json();
+            this.renderTabs(data.data, data.prev_page_url, data.next_page_url, data.current_page);
+            this.populateSelects(data.data);
+        } catch (e) { console.error('Gagal load kategori', e); }
+    },
+
+    renderTabs(categories, prevUrl, nextUrl, currentPage) {
+        const container = document.getElementById('category-container');
+        const pagination = document.getElementById('category-pagination');
+        const baseClass = 'px-4 py-2 text-sm font-semibold rounded-lg transition-colors';
+        const activeClass = 'text-primary border-b-2 border-primary';
+        const inactiveClass = 'text-[#78716C] hover:text-[#1C1917]';
+        const isAll = this.currentCategory === 'all';
+        let html = '<a href="/menu?category=all&search=' + this.search + '" class="' + baseClass + ' ' + (isAll ? activeClass : inactiveClass) + '">All</a>';
+        const self = this;
+        categories.forEach(function(cat) {
+            const active = self.currentCategory === cat.slug;
+            html += '<a href="/menu?category=' + cat.slug + '&search=' + self.search + '" class="' + baseClass + ' ' + (active ? activeClass : inactiveClass) + '">' + cat.name + '</a>';
+        });
+        container.innerHTML = html;
+        let pHtml = '';
+        if (prevUrl) pHtml += '<button onclick="categoryModule.loadCategories(' + (currentPage - 1) + ')" class="p-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold px-2">&lsaquo;</button>';
+        if (nextUrl) pHtml += '<button onclick="categoryModule.loadCategories(' + (currentPage + 1) + ')" class="p-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold px-2">&rsaquo;</button>';
+        pagination.innerHTML = pHtml;
+    },
+
+    populateSelects(categories) {
+        const addSel = document.getElementById('add-category-select');
+        const editSel = document.getElementById('edit-category');
+        const prevAdd = addSel ? addSel.value : '';
+        const prevEdit = editSel ? editSel.value : '';
+        let opts = '<option value="">Pilih kategori</option>';
+        categories.forEach(function(cat) { opts += '<option value="' + cat.slug + '">' + cat.name + '</option>'; });
+        if (addSel) { addSel.innerHTML = opts; if (prevAdd) addSel.value = prevAdd; }
+        if (editSel) { editSel.innerHTML = opts; if (prevEdit) editSel.value = prevEdit; }
+    },
+
+    openAddModal() { document.getElementById('add-category-modal').classList.remove('hidden'); },
+    closeAddModal() {
+        document.getElementById('add-category-modal').classList.add('hidden');
+        document.getElementById('add-category-form').reset();
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function() { categoryModule.loadCategories(); });
+
+const _addCatForm = document.getElementById('add-category-form');
+if (_addCatForm) {
+    _addCatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const token = document.querySelector('meta[name="csrf-token"]').content;
+        fetch('/categories', {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+            body: new FormData(this)
+        }).then(r => r.json()).then(function(data) {
+            if (data.success) {
+                categoryModule.closeAddModal();
+                categoryModule.loadCategories();
+            } else {
+                alert('Error: ' + ((data.errors && data.errors.name && data.errors.name[0]) || data.message || 'Gagal menyimpan kategori'));
+            }
+        });
+    });
+}
+
 </script>
 @endpush

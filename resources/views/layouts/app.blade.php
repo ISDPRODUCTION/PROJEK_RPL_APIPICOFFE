@@ -28,23 +28,55 @@
         .nav-active { background: #FFF7ED; color: #F97316; }
         .nav-active svg { stroke: #F97316; }
         [x-cloak] { display: none !important; }
+
+        /* Sidebar transition */
+        #sidebar {
+            transition: transform 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            #sidebar {
+                position: fixed;
+                top: 0; left: 0;
+                height: 100%;
+                z-index: 50;
+                transform: translateX(-100%);
+            }
+            #sidebar.open {
+                transform: translateX(0);
+            }
+        }
     </style>
+<script>
+window.__userTheme = {
+    color: '{{ auth()->user()->theme_color ?? "#F97316" }}',
+    darkMode: {{ (auth()->user()->dark_mode ?? false) ? 'true' : 'false' }}
+};
+</script>
+<script src="{{ asset('js/store/themeStore.js') }}"></script>
+<script>
+if (window.themeStore && window.__userTheme) {
+    themeStore.applyTheme(window.__userTheme.color, window.__userTheme.darkMode);
+}
+</script>
     @stack('styles')
 </head>
 <body class="bg-[#F5F5F4] text-[#1C1917]">
 
 @php
     $userRole = auth()->user()->role ?? 'cashier';
-    $isManager    = $userRole === 'manager';
-    $isAdmin      = in_array($userRole, ['admin', 'manager', 'supervisor']);
-    $isCashier    = in_array($userRole, ['cashier', 'admin', 'manager', 'supervisor', 'barista', 'gudang']);
+    $isManager = $userRole === 'manager';
+    $isAdmin   = in_array($userRole, ['admin', 'manager', 'supervisor']);
+    $isCashier = in_array($userRole, ['cashier', 'admin', 'manager', 'supervisor', 'barista', 'gudang']);
 @endphp
+
+{{-- Mobile sidebar overlay --}}
+<div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/40 z-40 md:hidden" onclick="closeSidebar()"></div>
 
 <div class="flex h-screen overflow-hidden">
 
     {{-- SIDEBAR --}}
-    <aside class="w-60 bg-white border-r border-stone-200 flex flex-col flex-shrink-0 h-full">
-        {{-- Logo --}}
+    <aside id="sidebar" class="w-60 bg-white border-r border-stone-200 flex flex-col flex-shrink-0 h-full">
+        {{-- Logo + close button (mobile) --}}
         <div class="flex items-center gap-3 px-5 py-5 border-b border-stone-100">
             <div class="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center bg-orange-50 flex-shrink-0">
                 @if(\Illuminate\Support\Facades\Storage::disk('public')->exists('settings/logo.png'))
@@ -55,16 +87,21 @@
                     </svg>
                 @endif
             </div>
-            <span class="font-bold text-[#1C1917] text-lg leading-none">Apipi <span class="text-[#F97316]">Coffe</span></span>
+            <span class="font-bold text-[#1C1917] text-lg leading-none flex-1">Apipi <span class="text-[#F97316]">Coffe</span></span>
+            {{-- Close btn (mobile only) --}}
+            <button onclick="closeSidebar()" class="md:hidden w-7 h-7 flex items-center justify-center rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
         </div>
 
         {{-- Navigation --}}
         <nav class="flex-1 px-3 py-4 space-y-1">
             <p class="text-xs font-semibold text-[#78716C] uppercase tracking-widest px-3 mb-3">Main Menu</p>
 
-            {{-- Dashboard — semua role --}}
-            <a href="{{ route('pos.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('pos.*') ? 'nav-active' : 'text-[#78716C] hover:bg-stone-100' }}">
+            <a href="{{ route('pos.index') }}" onclick="closeSidebar()"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('pos.*') ? 'nav-active' : 'text-[#78716C] hover:bg-stone-100' }}">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
                     <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
@@ -72,10 +109,9 @@
                 Dashboard
             </a>
 
-            {{-- Menu Management — kasir, admin, manager --}}
             @if($isCashier)
-            <a href="{{ route('menu.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('menu.*') ? 'nav-active' : 'text-[#78716C] hover:bg-stone-100' }}">
+            <a href="{{ route('menu.index') }}" onclick="closeSidebar()"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('menu.*') ? 'nav-active' : 'text-[#78716C] hover:bg-stone-100' }}">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
                 </svg>
@@ -83,10 +119,9 @@
             </a>
             @endif
 
-            {{-- Sales Report — admin dan manager saja --}}
             @if($isAdmin)
-            <a href="{{ route('reports.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('reports.*') ? 'nav-active' : 'text-[#78716C] hover:bg-stone-100' }}">
+            <a href="{{ route('reports.index') }}" onclick="closeSidebar()"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('reports.*') ? 'nav-active' : 'text-[#78716C] hover:bg-stone-100' }}">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
@@ -94,9 +129,8 @@
             </a>
             @endif
 
-            {{-- Settings — semua role --}}
-            <a href="{{ route('settings.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('settings.*') ? 'nav-active' : 'text-[#78716C] hover:bg-stone-100' }}">
+            <a href="{{ route('settings.index') }}" onclick="closeSidebar()"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('settings.*') ? 'nav-active' : 'text-[#78716C] hover:bg-stone-100' }}">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/>
                 </svg>
@@ -116,10 +150,18 @@
     </aside>
 
     {{-- MAIN AREA --}}
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 flex flex-col overflow-hidden min-w-0">
         {{-- TOP NAV --}}
-        <header class="h-14 bg-white border-b border-stone-200 flex items-center px-6 gap-4 flex-shrink-0">
-            <div class="flex items-center gap-3 flex-1">
+        <header class="h-14 bg-white border-b border-stone-200 flex items-center px-4 gap-3 flex-shrink-0">
+
+            {{-- Hamburger (mobile only) --}}
+            <button onclick="openSidebar()" class="md:hidden w-9 h-9 flex items-center justify-center rounded-xl text-stone-500 hover:bg-stone-100 transition-colors flex-shrink-0">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <div class="flex items-center gap-3 flex-1 min-w-0">
                 @if(request()->routeIs('pos.*'))
                 <div class="flex-1 max-w-lg">
                     <div class="relative">
@@ -127,8 +169,8 @@
                             <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
                         </svg>
                         <input id="search-input" type="text" placeholder="Search menu items..."
-                               class="w-full pl-9 pr-4 py-2 text-sm bg-[#F5F5F4] rounded-full border-0 focus:ring-2 focus:ring-[#F97316]/30 outline-none"
-                               value="{{ request('search') }}">
+                                class="w-full pl-9 pr-4 py-2 text-sm bg-[#F5F5F4] rounded-full border-0 focus:ring-2 focus:ring-[#F97316]/30 outline-none"
+                                value="{{ request('search') }}">
                     </div>
                 </div>
                 @else
@@ -137,20 +179,20 @@
             </div>
 
             {{-- Right side --}}
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 flex-shrink-0">
                 <div class="relative">
                     <button onclick="uiStore.toggleProfile()"
                             class="flex items-center gap-2 text-sm font-medium text-[#1C1917] hover:text-[#F97316] transition-colors">
                         <svg class="w-5 h-5 text-[#78716C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                         </svg>
-                        Account
+                        <span class="hidden sm:inline">Account</span>
                     </button>
 
                     {{-- Dropdown --}}
                     <div id="profile-dropdown"
-                         class="hidden absolute right-0 top-10 w-56 bg-white rounded-2xl shadow-xl border border-stone-100 py-2 z-50 origin-top-right"
-                         style="opacity:0; transform: scale(0.95); transition: opacity 150ms, transform 150ms;">
+                        class="hidden absolute right-0 top-10 w-56 bg-white rounded-2xl shadow-xl border border-stone-100 py-2 z-50 origin-top-right"
+                        style="opacity:0; transform: scale(0.95); transition: opacity 150ms, transform 150ms;">
                         <div class="px-4 py-3 border-b border-stone-100">
                             <p class="text-sm font-semibold">{{ auth()->user()->name }}</p>
                             <p class="text-xs text-[#78716C]">{{ ucfirst(auth()->user()->role) }}</p>
@@ -209,5 +251,17 @@
 <script src="{{ asset('js/modules/dragModule.js') }}"></script>
 <script src="{{ asset('js/modules/cartModule.js') }}"></script>
 <script src="{{ asset('js/main.js') }}"></script>
+<script>
+function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('sidebar-overlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.add('hidden');
+    document.body.style.overflow = '';
+}
+</script>
 </body>
 </html>

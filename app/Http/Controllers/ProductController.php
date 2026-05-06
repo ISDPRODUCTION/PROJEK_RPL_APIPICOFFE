@@ -26,7 +26,7 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name'     => 'required|string|max:100',
-            'category' => 'required|in:food,drinks,snacks,dessert',
+            'category' => 'required|exists:categories,slug',
             'price'    => 'required|integer|min:0',
             'stock'    => 'required|integer|min:0',
             'image'    => 'nullable|image|max:5120',
@@ -44,7 +44,7 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name'     => 'required|string|max:100',
-            'category' => 'required|in:food,drinks,snacks,dessert',
+            'category' => 'required|exists:categories,slug',
             'price'    => 'required|integer|min:0',
             'stock'    => 'required|integer|min:0',
             'image'    => 'nullable|image|max:5120',

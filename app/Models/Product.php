@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Product extends Model
 {
@@ -13,7 +14,7 @@ class Product extends Model
     protected $fillable = [
         'sku',
         'name',
-        'category',
+        'category_id',
         'price',
         'stock',
         'image',
@@ -25,6 +26,11 @@ class Product extends Model
         'stock'        => 'integer',
         'is_available' => 'boolean',
     ];
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 
     public function orderItems(): HasMany
     {
@@ -49,8 +55,10 @@ class Product extends Model
         return $query->where('is_available', true);
     }
 
-    public function scopeByCategory($query, string $category)
+    public function scopeByCategory($query, string $categorySlug)
     {
-        return $query->where('category', $category);
+        return $query->whereHas('category', function ($q) use ($categorySlug) {
+            $q->where('slug', $categorySlug);
+        });
     }
 }
