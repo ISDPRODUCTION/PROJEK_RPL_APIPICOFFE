@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\ProductService;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class PosController extends Controller

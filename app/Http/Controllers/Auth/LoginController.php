@@ -30,7 +30,12 @@ class LoginController extends Controller
 
             Auth::user()->update(['shift_started_at' => Carbon::now()]);
 
-            return redirect()->intended(route('pos.index'));
+            // Admin tidak bisa akses Dashboard POS, arahkan ke Reports
+            $defaultRoute = Auth::user()->role === 'admin'
+                ? route('reports.index')
+                : route('pos.index');
+
+            return redirect()->intended($defaultRoute);
         }
 
         return back()->withErrors(['email' => 'Invalid credentials.'])->withInput();

@@ -30,8 +30,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [CategoryController::class, 'store'])->name('store');
     });
 
-    // ── Dashboard POS ─────────────────────────────────────────────────────────
-    Route::get('/', [PosController::class, 'index'])->name('pos.index');
+    // ── Dashboard POS (kasir, manager, supervisor – BUKAN admin) ────────────────
+    Route::get('/', [PosController::class, 'index'])
+        ->name('pos.index')
+        ->middleware('role:cashier,manager,supervisor');
     // ── Theme Settings ─────────────────────────────────────────────────────────
     Route::post('/settings/theme', [ThemeController::class, 'update'])->name('settings.theme.update');
 
@@ -40,15 +42,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/receipt/{orderNumber}', [OrderController::class, 'receipt'])->name('receipt.show');
 
-    // ── Menu Management ───────────────────────────────────────────────────────
-    Route::prefix('menu')->name('menu.')->middleware('role:cashier,admin,manager,supervisor')->group(function () {
+    // ── Menu Management (admin, manager, supervisor – BUKAN kasir) ───────────
+    Route::prefix('menu')->name('menu.')->middleware('role:admin,manager,supervisor')->group(function () {
         Route::get('/', [ProductController::class, 'index'])->name('index');
         Route::post('/', [ProductController::class, 'store'])->name('store');
         Route::post('/{id}', [ProductController::class, 'update'])->name('update');
         Route::delete('/{id}', [ProductController::class, 'destroy'])->name('destroy');
     });
 
-    // ── Sales Report ──────────────────────────────────────────────────────────
+    // ── Sales Report (admin, manager, supervisor – BUKAN kasir) ──────────────
     Route::prefix('reports')->name('reports.')->middleware('role:admin,manager,supervisor')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
         Route::get('/chart-data', [ReportController::class, 'chartData'])->name('chart-data');

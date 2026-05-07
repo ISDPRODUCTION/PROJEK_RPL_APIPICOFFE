@@ -238,79 +238,126 @@
 {{-- Edit Menu Modal --}}
 <div id="edit-menu-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="menuModule.closeEditModal()"></div>
-    <div class="relative bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg z-10 max-h-[90vh] overflow-y-auto">
-        <div class="p-5 md:p-6">
+    <div class="relative bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full sm:max-w-xl z-10 max-h-[95vh] overflow-y-auto">
+        <div class="p-6 md:p-7">
+
+            {{-- Mobile drag indicator --}}
             <div class="flex justify-center mb-4 sm:hidden">
                 <div class="w-10 h-1 bg-stone-200 rounded-full"></div>
             </div>
-            <div class="flex items-start justify-between mb-1">
+
+            {{-- Header --}}
+            <div class="flex items-start justify-between mb-6">
                 <div>
                     <h2 class="text-xl font-bold text-[#1C1917]">Edit Menu</h2>
-                    <p class="text-sm text-[#78716C]">Update the details for the existing product.</p>
+                    <p class="text-sm text-[#78716C] mt-0.5">Update the details for the existing product catalog.</p>
                 </div>
-                <button onclick="menuModule.closeEditModal()" class="text-stone-400 hover:text-[#1C1917] mt-1">
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                <button onclick="menuModule.closeEditModal()"
+                        class="w-8 h-8 flex items-center justify-center rounded-full text-stone-400 hover:text-[#1C1917] hover:bg-stone-100 transition-colors">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
                 </button>
             </div>
-            <form id="edit-menu-form" class="mt-5">
+
+            <form id="edit-menu-form" novalidate>
                 @csrf
                 <input type="hidden" name="_productId" id="edit-product-id">
-                <div class="flex gap-4 mb-4">
-                    <div class="flex flex-col items-center gap-2 flex-shrink-0">
-                        <img id="edit-product-image" src="" alt="Product" class="w-24 h-24 rounded-xl object-cover bg-stone-100">
-                        <button type="button" onclick="document.getElementById('edit-image-input').click()" class="text-xs font-semibold text-primary flex items-center gap-1">
-                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                            Ganti
+
+                {{-- Row 1: Image (left) + Product Name & Category (right) --}}
+                <div class="flex gap-5 mb-5">
+
+                    {{-- Left: Product Image --}}
+                    <div class="flex flex-col items-start gap-2 flex-shrink-0">
+                        <p class="text-sm font-semibold text-[#1C1917]">Product Image</p>
+                        <div class="w-36 h-36 rounded-2xl overflow-hidden bg-stone-100 border border-stone-200 flex-shrink-0">
+                            <img id="edit-product-image" src="" alt="Product" class="w-full h-full object-cover">
+                        </div>
+                        <input type="file" id="edit-image-input" name="image" accept="image/*" class="hidden"
+                               onchange="menuModule.previewEditImage(this)">
+                        <button type="button"
+                                onclick="document.getElementById('edit-image-input').click()"
+                                class="flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-[#EA580C] transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Change Image
                         </button>
-                        <input type="file" id="edit-image-input" name="image" accept="image/*" class="hidden" onchange="menuModule.previewEditImage(this)">
+                        <button type="button"
+                                onclick="menuModule.removeEditImage()"
+                                class="flex items-center gap-1.5 text-sm font-semibold text-red-500 hover:text-red-600 transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Remove
+                        </button>
                     </div>
-                    <div class="flex-1 space-y-3 min-w-0">
+
+                    {{-- Right: Product Name + Category --}}
+                    <div class="flex-1 min-w-0 flex flex-col gap-4 pt-7">
                         <div>
                             <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Product Name</label>
-                            <input type="text" id="edit-name" name="name"
-                                    class="w-full px-4 py-2.5 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none">
+                            <input type="text" id="edit-name" name="name" placeholder="Nama menu"
+                                   class="w-full px-4 py-2.5 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none transition-colors">
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Category</label>
-                            <select id="edit-category" name="category"
-                                    class="w-full px-4 py-2.5 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none bg-white">
-                                <option value="">Pilih kategori</option>
-                            </select>
+                            <div class="relative">
+                                <select id="edit-category" name="category"
+                                        class="w-full px-4 py-2.5 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none bg-white appearance-none transition-colors">
+                                    <option value="">Pilih kategori</option>
+                                </select>
+                                <svg class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#78716C]"
+                                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4 mb-5">
+
+                {{-- Row 2: Price + Initial Stock --}}
+                <div class="grid grid-cols-2 gap-4 mb-6">
                     <div>
                         <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Price</label>
                         <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-medium text-[#78716C]">Rp</span>
-                            <input type="number" id="edit-price" name="price"
-                                    class="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-primary">Rp</span>
+                            <input type="number" id="edit-price" name="price" placeholder="25.000" min="0"
+                                   class="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none transition-colors">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Stock</label>
-                        <div class="flex items-center gap-1">
-                            <button type="button" onclick="document.getElementById('edit-stock').value=Math.max(0,+document.getElementById('edit-stock').value-1)"
-                                    class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl border border-stone-200 text-[#78716C] text-lg font-light">−</button>
+                        <label class="block text-sm font-semibold text-[#1C1917] mb-1.5">Initial Stock</label>
+                        <div class="flex items-center gap-2">
+                            <button type="button"
+                                    onclick="document.getElementById('edit-stock').value=Math.max(0,+document.getElementById('edit-stock').value-1)"
+                                    class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl border border-stone-200 text-[#78716C] hover:border-stone-300 hover:bg-stone-50 text-xl font-light leading-none transition-colors">
+                                −
+                            </button>
                             <input type="number" id="edit-stock" name="stock" min="0"
-                                    class="flex-1 min-w-0 text-center px-2 py-2.5 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none">
-                            <button type="button" onclick="document.getElementById('edit-stock').value=+document.getElementById('edit-stock').value+1"
-                                    class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl border border-stone-200 text-[#78716C] text-lg font-light">+</button>
+                                   class="flex-1 min-w-0 text-center px-2 py-2.5 rounded-2xl border border-stone-200 text-sm focus:ring-2 focus:ring-primary/30 outline-none transition-colors">
+                            <button type="button"
+                                    onclick="document.getElementById('edit-stock').value=+document.getElementById('edit-stock').value+1"
+                                    class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-xl border border-stone-200 text-[#78716C] hover:border-stone-300 hover:bg-stone-50 text-xl font-light leading-none transition-colors">
+                                +
+                            </button>
                         </div>
                     </div>
                 </div>
-                <div class="flex gap-3 pb-2">
+
+                {{-- Footer --}}
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-stone-100">
                     <button type="button" onclick="menuModule.closeEditModal()"
-                            class="flex-1 py-3 text-sm font-semibold border border-stone-200 rounded-2xl text-[#78716C] hover:text-[#1C1917] transition-colors">
+                            class="px-6 py-2.5 text-sm font-semibold text-[#78716C] hover:text-[#1C1917] rounded-2xl hover:bg-stone-100 transition-colors">
                         Batal
                     </button>
                     <button type="submit"
-                            class="flex-1 py-3 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors shadow-lg shadow-orange-200">
-                        Simpan
+                            class="px-7 py-2.5 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors shadow-lg shadow-orange-200">
+                        Simpan Perubahan
                     </button>
                 </div>
             </form>
+
         </div>
     </div>
 </div>
