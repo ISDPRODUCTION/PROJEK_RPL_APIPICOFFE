@@ -26,7 +26,8 @@ const reportModule = (() => {
     function formatLabel(d) {
         if (d.date) {
             const dt = new Date(d.date + 'T00:00:00');
-            return dt.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }).toUpperCase();
+            // Tampilkan hari + bulan singkat: "9 Mar", "15 Apr"
+            return dt.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
         }
         if (d.month) return d.month;
         if (d.year)  return String(d.year);

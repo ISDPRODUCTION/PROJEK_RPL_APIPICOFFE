@@ -61,24 +61,35 @@ class ReportController extends Controller
             ->orderByDesc('order_date')
             ->get();
 
-        $revenue = $orders->sum('total_amount');
+        $revenue = $orders->sum('total');
         $count   = $orders->count();
 
         $ordersData = $orders->map(fn($o) => [
             'order_number' => $o->order_number,
             'time'         => Carbon::parse($o->order_date)->format('H:i'),
             'items'        => $o->items->map(fn($i) => $i->quantity . 'x ' . $i->product_name)->join(', '),
-            'total'        => 'Rp ' . number_format($o->total_amount, 0, ',', '.'),
+            'total'        => 'Rp ' . number_format($o->total, 0, ',', '.'),
             'status'       => $o->status,
         ]);
 
+        // Chart data: selalu group per HARI agar setiap bar = 1 hari
+        // Hanya hari yang ada transaksinya yang tampil (tidak ada bar kosong)
+        $chartData = Order::selectRaw('DATE(order_date) as date, COUNT(*) as transaction_count, SUM(total) as revenue')
+            ->whereBetween('order_date', [$from, $to])
+            ->where('status', 'completed')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->toArray();
+
         return response()->json([
-            'success' => true,
-            'stats'   => [
+            'success'    => true,
+            'stats'      => [
                 'revenue' => $revenue,
                 'count'   => $count,
             ],
-            'orders'  => $ordersData,
+            'orders'     => $ordersData,
+            'chart_data' => $chartData,
         ]);
     }
 

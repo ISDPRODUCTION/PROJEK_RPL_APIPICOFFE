@@ -203,123 +203,116 @@
 @endsection
 
 @push('scripts')
+{{-- Data untuk chart & filter dikirim ke JS --}}
 <script>
     window.reportChartData = @json($report['data']);
-    window.reportMonth = {
-        {
-            $month
+    window.reportMonth     = {{ (int) $month }};
+    window.reportYear      = {{ (int) $year }};
+</script>
+
+{{-- reportModule harus dimuat SETELAH data di atas --}}
+<script src="{{ asset('js/modules/reportModule.js') }}"></script>
+
+{{-- Filter logic, dijalankan setelah reportModule tersedia --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    let currentPreset = 'today';
+
+    /* ── helpers ─────────────────────────────────── */
+    function getDateRange(preset) {
+        const today = new Date();
+        const fmt   = d => d.toISOString().split('T')[0];
+
+        if (preset === 'today')      return { from: fmt(today), to: fmt(today), label: 'Hari Ini' };
+        if (preset === 'yesterday')  {
+            const y = new Date(today); y.setDate(y.getDate() - 1);
+            return { from: fmt(y), to: fmt(y), label: 'Kemarin' };
         }
-    };
-    window.reportYear = {
-        {
-            $year
+        if (preset === 'this_week')  {
+            const ws = new Date(today); ws.setDate(today.getDate() - today.getDay());
+            return { from: fmt(ws), to: fmt(today), label: 'Minggu Ini' };
         }
+        if (preset === 'this_month') {
+            const ms = new Date(today.getFullYear(), today.getMonth(), 1);
+            return { from: fmt(ms), to: fmt(today), label: 'Bulan Ini' };
+        }
+        if (preset === 'last_month') {
+            const ls = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            const le = new Date(today.getFullYear(), today.getMonth(), 0);
+            return { from: fmt(ls), to: fmt(le), label: 'Bulan Lalu' };
+        }
+        if (preset === 'custom') {
+            const from = document.getElementById('filter-date-from').value;
+            const to   = document.getElementById('filter-date-to').value;
+            if (!from || !to) { alert('Pilih tanggal dari dan sampai!'); return null; }
+            return { from, to, label: `${from} s/d ${to}` };
+        }
+        return null;
+    }
+
+    /* ── public API dipasang ke reportModule ──────── */
+    window.reportModule.openFilter = function () {
+        document.getElementById('filter-modal').classList.remove('hidden');
     };
 
-    // Extend reportModule after it loads
-    document.addEventListener('DOMContentLoaded', function() {
-        // Filter functions
-        window._filterExt = {
-            currentPreset: 'today',
+    window.reportModule.closeFilter = function () {
+        document.getElementById('filter-modal').classList.add('hidden');
+    };
 
-            openFilter() {
-                document.getElementById('filter-modal').classList.remove('hidden');
-            },
-            closeFilter() {
-                document.getElementById('filter-modal').classList.add('hidden');
-            },
-            selectPreset(btn) {
-                document.querySelectorAll('.preset-btn').forEach(b => {
-                    b.classList.remove('border-primary', 'text-primary');
-                    b.classList.add('border-stone-200', 'text-[#78716C]');
-                });
-                btn.classList.add('border-primary', 'text-primary');
-                btn.classList.remove('border-stone-200', 'text-[#78716C]');
-                this.currentPreset = btn.dataset.preset;
+    window.reportModule.selectPreset = function (btn) {
+        document.querySelectorAll('.preset-btn').forEach(b => {
+            b.classList.remove('border-primary', 'text-primary');
+            b.classList.add('border-stone-200', 'text-[#78716C]');
+        });
+        btn.classList.add('border-primary', 'text-primary');
+        btn.classList.remove('border-stone-200', 'text-[#78716C]');
+        currentPreset = btn.dataset.preset;
 
-                const customRange = document.getElementById('custom-date-range');
-                if (this.currentPreset === 'custom') {
-                    customRange.classList.remove('hidden');
+        const customRange = document.getElementById('custom-date-range');
+        customRange.classList.toggle('hidden', currentPreset !== 'custom');
+    };
+
+    window.reportModule.applyFilter = async function () {
+        const range = getDateRange(currentPreset);
+        if (!range) return;
+
+        window.reportModule.closeFilter();
+
+        document.getElementById('filter-info').classList.remove('hidden');
+        document.getElementById('filter-info-text').textContent = `📅 Filter aktif: ${range.label}`;
+        document.getElementById('filter-badge').classList.remove('hidden');
+
+        try {
+            const res  = await fetch(`/reports/filter?from=${range.from}&to=${range.to}`, {
+                headers: {
+                    'Accept':       'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                // ── Update stats cards ────────────────────────────────────────
+                document.getElementById('stat-revenue').textContent      = 'Rp ' + data.stats.revenue.toLocaleString('id-ID');
+                document.getElementById('stat-count').textContent         = data.stats.count + ' Transaksi';
+                document.getElementById('stat-label-revenue').textContent = `Total Penjualan (${range.label})`;
+
+                // ── Update chart ──────────────────────────────────────────────
+                if (data.chart_data && window.reportModule.updateChart) {
+                    // Update label periode di atas chart
+                    const chartPeriod = document.getElementById('chart-period');
+                    if (chartPeriod) chartPeriod.textContent = `Periode: ${range.label}`;
+
+                    window.reportModule.updateChart(data.chart_data);
+                }
+
+                // ── Update tabel transaksi ────────────────────────────────────
+                const tbody = document.getElementById('transactions-tbody');
+                if (data.orders.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-sm text-[#78716C]">Tidak ada transaksi untuk periode ini.</td></tr>`;
                 } else {
-                    customRange.classList.add('hidden');
-                }
-            },
-            getDateRange(preset) {
-                const today = new Date();
-                const fmt = d => d.toISOString().split('T')[0];
-
-                switch (preset) {
-                    case 'today':
-                        return {
-                            from: fmt(today), to: fmt(today), label: 'Hari Ini'
-                        };
-                    case 'yesterday':
-                        const yest = new Date(today);
-                        yest.setDate(yest.getDate() - 1);
-                        return {
-                            from: fmt(yest), to: fmt(yest), label: 'Kemarin'
-                        };
-                    case 'this_week':
-                        const weekStart = new Date(today);
-                        weekStart.setDate(today.getDate() - today.getDay());
-                        return {
-                            from: fmt(weekStart), to: fmt(today), label: 'Minggu Ini'
-                        };
-                    case 'this_month':
-                        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-                        return {
-                            from: fmt(monthStart), to: fmt(today), label: 'Bulan Ini'
-                        };
-                    case 'last_month':
-                        const lmStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                        const lmEnd = new Date(today.getFullYear(), today.getMonth(), 0);
-                        return {
-                            from: fmt(lmStart), to: fmt(lmEnd), label: 'Bulan Lalu'
-                        };
-                    case 'custom':
-                        const from = document.getElementById('filter-date-from').value;
-                        const to = document.getElementById('filter-date-to').value;
-                        if (!from || !to) {
-                            alert('Pilih tanggal dari dan sampai!');
-                            return null;
-                        }
-                        return {
-                            from, to, label: `${from} s/d ${to}`
-                        };
-                }
-            },
-            async applyFilter() {
-                const range = this.getDateRange(this.currentPreset);
-                if (!range) return;
-
-                this.closeFilter();
-
-                // Show filter info bar
-                document.getElementById('filter-info').classList.remove('hidden');
-                document.getElementById('filter-info-text').textContent = `📅 Filter aktif: ${range.label}`;
-                document.getElementById('filter-badge').classList.remove('hidden');
-
-                // Fetch filtered data
-                const res = await fetch(`/reports/filter?from=${range.from}&to=${range.to}`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    }
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    // Update stats
-                    document.getElementById('stat-revenue').textContent = 'Rp ' + data.stats.revenue.toLocaleString('id-ID');
-                    document.getElementById('stat-count').textContent = data.stats.count + ' Transaksi';
-                    document.getElementById('stat-label-revenue').textContent = `Total Penjualan (${range.label})`;
-
-                    // Update transactions table
-                    const tbody = document.getElementById('transactions-tbody');
-                    if (data.orders.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-sm text-[#78716C]">Tidak ada transaksi.</td></tr>`;
-                    } else {
-                        tbody.innerHTML = data.orders.map(o => `
+                    tbody.innerHTML = data.orders.map(o => `
                         <tr class="hover:bg-stone-50 transition-colors">
                             <td class="py-3 px-6 text-sm font-semibold text-[#1C1917]">#${o.order_number}</td>
                             <td class="py-3 px-4 text-sm text-[#78716C]">${o.time} WIB</td>
@@ -328,35 +321,28 @@
                             <td class="py-3 px-4"><span class="px-2.5 py-1 bg-green-100 text-green-600 text-xs font-bold rounded-lg uppercase">SELESAI</span></td>
                         </tr>
                     `).join('');
-                    }
                 }
-            },
-            clearFilter() {
-                this.currentPreset = 'today';
-                document.querySelectorAll('.preset-btn').forEach(b => {
-                    b.classList.remove('border-primary', 'text-primary');
-                    b.classList.add('border-stone-200', 'text-[#78716C]');
-                });
-                document.querySelector('[data-preset="today"]').classList.add('border-primary', 'text-primary');
-                document.getElementById('filter-info').classList.add('hidden');
-                document.getElementById('filter-badge').classList.add('hidden');
-                document.getElementById('custom-date-range').classList.add('hidden');
-                this.closeFilter();
-                window.location.reload();
             }
-        };
+        } catch (e) {
+            console.error('Filter error:', e);
+        }
+    };
 
-        // Override reportModule methods after script loads
-        setTimeout(() => {
-            if (window.reportModule) {
-                reportModule.openFilter = () => window._filterExt.openFilter();
-                reportModule.closeFilter = () => window._filterExt.closeFilter();
-                reportModule.selectPreset = (btn) => window._filterExt.selectPreset(btn);
-                reportModule.applyFilter = () => window._filterExt.applyFilter();
-                reportModule.clearFilter = () => window._filterExt.clearFilter();
-            }
-        }, 100);
-    });
+    window.reportModule.clearFilter = function () {
+        currentPreset = 'today';
+        document.querySelectorAll('.preset-btn').forEach(b => {
+            b.classList.remove('border-primary', 'text-primary');
+            b.classList.add('border-stone-200', 'text-[#78716C]');
+        });
+        const todayBtn = document.querySelector('[data-preset="today"]');
+        if (todayBtn) { todayBtn.classList.add('border-primary', 'text-primary'); }
+        document.getElementById('filter-info').classList.add('hidden');
+        document.getElementById('filter-badge').classList.add('hidden');
+        document.getElementById('custom-date-range').classList.add('hidden');
+        window.reportModule.closeFilter();
+        window.location.reload();
+    };
+
+});
 </script>
-<script src="{{ asset('js/modules/reportModule.js') }}"></script>
 @endpush
