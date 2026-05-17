@@ -437,13 +437,21 @@ const settingsModule = {
     closeDeleteEmployee() { document.getElementById('delete-employee-modal').classList.add('hidden'); },
     async confirmDeleteEmployee() {
         const id = document.getElementById('delete-employee-id').value;
-        const res = await fetch(`/settings/employees/${id}`, {
-            method: 'DELETE',
-            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
-        });
-        const data = await res.json();
-        if (data.success) window.location.reload();
-        else alert(data.message || 'Gagal menghapus karyawan');
+        try {
+            const res = await fetch(`/settings/employees/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            });
+            const data = await res.json();
+            if (data.success) window.location.reload();
+            else alert(data.message || 'Gagal menghapus karyawan');
+        } catch (err) {
+            alert('Terjadi kesalahan saat menghapus.');
+            console.error(err);
+        }
     },
     selectRole(btn) {
         document.querySelectorAll('.role-btn').forEach(b => {
@@ -476,29 +484,67 @@ document.getElementById('business-identity-form').addEventListener('submit', asy
 
 document.getElementById('add-employee-form').addEventListener('submit', async function(e) {
     e.preventDefault();
+    const btn = this.querySelector('button[type="submit"]');
+    btn.textContent = 'Menyimpan...'; btn.disabled = true;
     const data = Object.fromEntries(new FormData(this));
-    const res = await fetch('{{ route("settings.employees.store") }}', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-        body: JSON.stringify(data)
-    });
-    const json = await res.json();
-    if (json.success) window.location.reload();
-    else alert(json.message || 'Gagal menambah karyawan');
+    try {
+        const res = await fetch('{{ route("settings.employees.store") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        if (json.success) {
+            window.location.reload();
+        } else if (res.status === 422 && json.errors) {
+            const msgs = Object.values(json.errors).flat().join('\n');
+            alert('Validasi gagal:\n' + msgs);
+        } else {
+            alert(json.message || 'Gagal menambah karyawan');
+        }
+    } catch (err) {
+        alert('Terjadi kesalahan. Coba lagi.');
+        console.error(err);
+    } finally {
+        btn.textContent = 'Tambah'; btn.disabled = false;
+    }
 });
 
 document.getElementById('edit-employee-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const id = document.getElementById('edit-employee-id').value;
+    const btn = this.querySelector('button[type="submit"]');
+    btn.textContent = 'Menyimpan...'; btn.disabled = true;
     const data = Object.fromEntries(new FormData(this));
-    const res = await fetch(`/settings/employees/${id}?_method=PUT`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-        body: JSON.stringify(data)
-    });
-    const json = await res.json();
-    if (json.success) window.location.reload();
-    else alert(json.message || 'Gagal update karyawan');
+    try {
+        const res = await fetch(`/settings/employees/${id}?_method=PUT`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        if (json.success) {
+            window.location.reload();
+        } else if (res.status === 422 && json.errors) {
+            const msgs = Object.values(json.errors).flat().join('\n');
+            alert('Validasi gagal:\n' + msgs);
+        } else {
+            alert(json.message || 'Gagal update karyawan');
+        }
+    } catch (err) {
+        alert('Terjadi kesalahan. Coba lagi.');
+        console.error(err);
+    } finally {
+        btn.textContent = 'Simpan'; btn.disabled = false;
+    }
 });
 </script>
 @endpush

@@ -74,18 +74,19 @@
 {{-- ===================== ORDER PANEL ===================== --}}
 {{-- Desktop: floating draggable | Mobile: bottom sheet --}}
 <div id="order-panel"
-    class="hidden fixed bg-white shadow-xl z-30 overflow-hidden select-none
+    class="hidden fixed bg-white shadow-xl z-30 select-none flex flex-col
             md:rounded-2xl md:w-80 md:bottom-6 md:right-6
-            bottom-0 left-0 right-0 rounded-t-3xl">
+            bottom-0 left-0 right-0 rounded-t-3xl"
+    style="max-height: 85vh;">
 
     {{-- Drag handle (mobile) --}}
-    <div class="flex justify-center pt-3 md:hidden">
+    <div class="flex justify-center pt-3 md:hidden flex-shrink-0">
         <div class="w-10 h-1 bg-stone-200 rounded-full"></div>
     </div>
 
     {{-- Header --}}
     <div id="order-panel-handle"
-        class="flex items-center justify-between px-4 pt-3 pb-2 cursor-grab active:cursor-grabbing">
+        class="flex items-center justify-between px-4 pt-3 pb-2 cursor-grab active:cursor-grabbing flex-shrink-0">
         <div class="flex items-center gap-2">
             <h3 class="font-bold text-[#1C1917] text-base">Your Order</h3>
             <span id="panel-item-count" class="text-xs font-bold bg-primary text-white px-2 py-0.5 rounded-full">0 ITEMS</span>
@@ -97,11 +98,13 @@
         </button>
     </div>
 
-    {{-- Items --}}
-    <div id="order-items-list" class="px-4 py-2 space-y-3 overflow-y-auto" style="max-height: 40vh;"></div>
+    {{-- Items List: scroll aktif setelah 3 item (tiap item ±68px → 3×68=204px) --}}
+    <div id="order-items-list"
+         class="px-4 py-2 space-y-3 overflow-y-auto flex-1"
+         style="max-height: 204px; min-height: 0;"></div>
 
-    {{-- Footer --}}
-    <div class="px-4 pt-3 pb-6 md:pb-4 border-t border-stone-100 mt-2">
+    {{-- Footer: selalu terlihat di bawah --}}
+    <div class="px-4 pt-3 pb-6 md:pb-4 border-t border-stone-100 flex-shrink-0">
         <div class="flex items-center justify-between mb-3">
             <span class="text-sm font-semibold text-[#1C1917]">Total</span>
             <span id="panel-total" class="text-base font-bold text-primary">Rp0</span>

@@ -116,20 +116,7 @@
                 class="flex w-full items-center justify-center py-3.5 bg-primary hover:bg-[#EA580C] text-white rounded-2xl text-sm font-semibold transition-colors shadow-lg shadow-orange-200 mb-3">
                 New Order
             </a>
-            <div class="grid grid-cols-2 gap-3">
-                <button class="flex items-center justify-center gap-2 py-2.5 bg-stone-100 hover:bg-stone-200 rounded-2xl text-sm font-semibold text-[#1C1917] transition-colors">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
-                    Email
-                </button>
-                <button class="flex items-center justify-center gap-2 py-2.5 bg-stone-100 hover:bg-stone-200 rounded-2xl text-sm font-semibold text-[#1C1917] transition-colors">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                    </svg>
-                    Save
-                </button>
-            </div>
+
 
             <p class="text-center text-xs text-[#78716C] uppercase tracking-widest mt-6">Visit us again at apipicoffee.com</p>
         </div>

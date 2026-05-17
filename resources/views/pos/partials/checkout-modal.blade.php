@@ -124,7 +124,6 @@
                 </svg>
                 Print Receipt
             </a>
-            <button class="text-sm text-[#78716C] hover:text-[#1C1917] transition-colors">Email Receipt to Customer</button>
         </div>
     </div>
 </div>
